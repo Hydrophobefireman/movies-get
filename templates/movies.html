@@ -1,0 +1,74 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fetch Movies</title>
+    <style>
+        .submit-button {
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            padding: 8px;
+            border: none;
+            outline: none;
+            background: #3367d6;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-top: 20px;
+        }
+
+        .ipgs {
+            -moz-border-radius: 20px;
+            -webkit-border-radius: 20px;
+            border-radius: 20px;
+            padding: 8px;
+            border: 1px solid #DFE1E5;
+            width: 100%;
+            outline: none;
+            background: white;
+            cursor: pointer;
+            transition: 0.5s;
+        }
+
+        .input_n {
+            -moz-border-radius: 15px;
+            -webkit-border-radius: 15px;
+            border-radius: 15px;
+            width: 45%;
+            height: 30px;
+            padding: 8px;
+        }
+
+        .center_stuff {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id=content></div>
+    <script>
+        var data = JSON.parse('{{data|safe}}');
+        for (var i = 0; i < data.length; i++) {
+            var div = document.getElementById("content");
+            var span = document.createElement("button");
+            span.setAttribute("class", "ipgs");
+            span.innerHTML = data[i]
+            a = document.createElement("a");
+            a.href = "/out?url=" + encodeURIComponent(data[i])
+            a.appendChild(span)
+            div.appendChild(a);
+        }
+    </script>
+</body>
+
+</html>

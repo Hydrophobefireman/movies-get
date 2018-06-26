@@ -1,63 +1,82 @@
 import base64
-import gc
 import json
-import os
-import queue
 import re
-import threading
-import time
 from urllib.parse import quote, unquote
-
+import requests
 from bs4 import BeautifulSoup as bs
 from flask import Flask, redirect, render_template, request, session, url_for
-from selenium import webdriver
-
-##END OF IMPORTS##
-##MAIN code##
+import streamsites as st
 
 app = Flask(__name__)
-# Every module in python has a special attribute
-# called __name__ . The value of __name__  attribute is set to '__main__'  when module run as main program.
-#  Otherwise the value of __name__  is set to contain the name of the module. se we are just using a small variable instead of the module name.
+
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
+
+
+def urlcheck(url):
+    print(url)
+    if re.search(r"(https?:)?//.*\.?((docs|drive)\.google.com)|video\.google\.com", url, re.IGNORECASE) is not None:
+        return True
+    elif re.search(r"(https?:)?//.*\.?estream", url, re.IGNORECASE) is not None:
+        return True
+    elif re.search(r"(https?:)?//.*\.?vidzi\.", url, re.IGNORECASE) is not None:
+        return True
+    elif re.search(r"(https?:)?//.*\.?yourupload\.", url, re.IGNORECASE) is not None:
+        return True
+    elif re.search(r"(https?:)?//.*\.?watcheng\.", url, re.IGNORECASE) is not None:
+        return True
+    elif re.search(r"https?://.*?coolseries\.", url, re.IGNORECASE) is not None:
+        return True
+    elif re.search(r"https?://.*?(chillingeffects|lumendatabase)\.org", url, re.IGNORECASE) is not None:
+        return True
+    elif re.search(r"https?://.*?oload|https?://openload|https?://.*?daclips|https?://.*?thevideo|https?://.*?vev.io|https?://.*?streamango|https?://.*?streamago|https?://.*?streamcloud", url, re.IGNORECASE) is not None:
+        return True
+    else:
+        return False
 
 
 @app.route("/")
-# This basically means our homepage(route defines path)
 def index():
-    # name of function
-    return "hi"  # Python language uses indentations more examples below
+    return render_template("index.html")
+
+
+@app.route("/search/")
+def ble():
+    q = request.args.get("q")
+    q = "watch "+q
+    url = "https://google.com/search?q="+quote(q)
+    print(url)
+    data = requests.get(url, headers={'User-Agent': USER_AGENT}).text
+    print("connected")
+    regex = r"((?<=href=\").*?(?=\"))"
+    js_data = []
+    link_list = [s for s in re.findall(regex, data) if s.startswith(
+        "http") and ".google" not in s and "youtube.com/?gl=" not in s and "www.blogger.com/?tab=wj" not in s
+        and ".bing" not in s and ".microsoft" not in s]
+    fl = [s for s in link_list if urlcheck(s)]
+    for t in fl:
+        if re.search(r"https?://.*?(chillingeffects|lumendatabase)\.org", t, re.IGNORECASE) is not None:
+            r = requests.get(t, headers={"User-Agent": USER_AGENT}).text
+            soup = bs(r, 'html.parser')
+            urls = [s.text for s in soup.find_all(
+                "li", attrs={"class", "infringing_url"})]
+            js_data += urls
+    js_data = list(set(js_data))
+    js_data = [s for s in js_data if urlcheck(s)]
+    ret = []
+    for url in js_data:
+        sites = st.check_for_stream_sites(url, USER_AGENT)
+        if sites:
+            ret += sites
+        else:
+            ret.append(url)
+    return render_template("movies.html", data=json.dumps(ret))
+
+
+@app.route("/out")
+def redir():
+    url = request.args.get("url")
+    return redirect("http://dl-py.herokuapp.com/video?url="+url)
 
 
 if __name__ == "__main__":
     app.run()
-    # This basically means iff the user is directly running this script..the app will run
-
-
-def functions_():
-    a = 5
-    # I told you about duck typing right? no need to define variable types ===>a=5 means a is int;a='5' means a is string etc
-    print(a)
-    return a
-    # basic ..check the indentatons though in the next function
-
-
-def some_function(a, b):  # a b are variables..when we call this function to execute code(the coe isnt executed right now..we will supply variable values)
-    if a > b:  # notice these colons in places
-        while b <= a:
-            print(b)
-            b += 1
-            # basically if a is bigger than b..print(b) and increase its value untill it geats equal to a
-    elif b > a:
-        while a <= b:
-            print(a)
-            a += 1
-    else:
-        print("equal values of a and b")
-    # Check the indents^^^^^^^
-# None of these functions will do anything unless we call it for example if you want functions_ to work(line 34)
-# you would need to type this without the # obvs
-# functions_()
-# if you needed the function on line 40 you would do this
-# some_function(10,100)#a's value replaced by 10....
-# if you dont do that the compiler will give an error
-#
