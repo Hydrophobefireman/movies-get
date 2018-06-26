@@ -1,15 +1,39 @@
 import base64
 import json
+import os
 import re
 from urllib.parse import quote, unquote
+
 import requests
 from bs4 import BeautifulSoup as bs
 from flask import Flask, redirect, render_template, request, session, url_for
+from flask_sqlalchemy import SQLAlchemy
+
 import streamsites as st
 
 app = Flask(__name__)
-
+try:
+    with open(".dbinfo_", "r") as f:
+        dburl = f.read()
+except:  # heroku
+    dburl = os.environ.get('DATABASE_URL')
+app.config['SQLALCHEMY_DATABASE_URI'] = dburl
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
+
+
+class moviedata(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    movie = db.Column(db.String(100))
+    url = db.Column(db.String(1000))
+
+    def __init__(self, movie, url):
+        self.movie = movie
+        self.url = url
+
+    def __repr__(self):
+        return '<Name %r>' % self.movie
 
 
 def urlcheck(url):
