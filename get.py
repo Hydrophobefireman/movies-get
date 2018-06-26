@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import re
+import psycopg2
 from urllib.parse import quote, unquote
 
 import requests
