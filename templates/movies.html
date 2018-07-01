@@ -197,6 +197,8 @@
                             document.getElementById("custom-dl").style.display = 'inline';
                         }
                         btns_[r].innerText = extractHostname(btns_[r].getAttribute("data"));
+                        btns_[r].style.display = ((btns_[r].getAttribute("data") == 'null') ? 'none' : 'inline')
+
                     }
                 }
                 document.getElementById("content").appendChild(dv);
