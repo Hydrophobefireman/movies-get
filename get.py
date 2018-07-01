@@ -7,22 +7,21 @@ from urllib.parse import quote, unquote
 import psycopg2
 import requests
 from bs4 import BeautifulSoup as bs
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import (Flask, redirect, render_template, request, session, url_for)
 from flask_sqlalchemy import SQLAlchemy
 
-import dbmanage
 import streamsites as st
 
 app = Flask(__name__)
-app.secret_key = "Su2nd9"
+app.secret_key = "Su)(d9"
 dburl = os.environ.get('DATABASE_URL')
 try:
     if dburl is None:
         with open(".dbinfo_", "r") as f:
             dburl = f.read()
 except FileNotFoundError:
-    print("No DB url specified try add it to the environment or create a .dbinfo_ file with the url")
-
+    raise Exception(
+        "No DB url specified try add it to the environment or create a .dbinfo_ file with the url")
 app.config['SQLALCHEMY_DATABASE_URI'] = dburl
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
@@ -32,13 +31,15 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 class movieData(db.Model):
     mid = db.Column(db.Integer, primary_key=True)
     movie = db.Column(db.String(100))
+    moviedisplay = db.Column(db.String(100))
     url = db.Column(db.String(1000))
     alt1 = db.Column(db.String(1000))
     alt2 = db.Column(db.String(1000))
     thumb = db.Column(db.String(1000))
 
     def __init__(self, movie, url, alt1, alt2, thumb):
-        self.movie = movie
+        self.movie = re.sub(r"\s", "", movie).lower()
+        self.moviedisplay = movie
         self.url = url
         self.alt1 = alt1
         self.alt2 = alt2
@@ -111,19 +112,25 @@ def index():
 def send_m():
     if request.args.get("q") is None:
         return "Specify a term!"
-    return render_template("movie.html", q=request.args.get("q"))
+    return render_template("movies.html", q=request.args.get("q"))
 
 
 @app.route("/data/search/", methods=['POST'])
 def serchs():
     json_data = {}
     json_data['movies'] = []
-    q = request.form["q"]
-    urls = movieData.query.filter(movieData.movie.startswith(q)).all()
+    q = re.sub(r"\s", "", request.form["q"]).lower()
+    urls = movieData.query.filter(
+        movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
     for url in urls:
         json_data['movies'].append(
-            {"movie": url.movie, "url": url.url, "url1": url.alt1, "url2": url.alt2})
+            {"movie": url.moviedisplay, "url": url.url, "url1": url.alt1, "url2": url.alt2, "thumb": url.thumb})
     return json.dumps(json_data)
+
+
+@app.route("/data/imagebin/<path:url>/")
+def redirtoimg(url):
+    return redirect(unquote(url), code=301)
 
 
 @app.route("/search/g/")

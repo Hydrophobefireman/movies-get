@@ -4,6 +4,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fetch Movies</title>
     <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+        
         .submit-button {
             -moz-border-radius: 5px;
             -webkit-border-radius: 5px;
@@ -25,12 +30,10 @@
         }
         
         .ipgs {
-            -moz-border-radius: 20px;
-            -webkit-border-radius: 20px;
-            border-radius: 20px;
+            border-radius: 5px;
             padding: 8px;
-            border: 1px solid #DFE1E5;
-            width: 100%;
+            border: 1px solid #3367d6;
+            width: 60px;
             outline: none;
             background: white;
             cursor: pointer;
@@ -51,14 +54,107 @@
             margin-right: auto;
             text-align: center;
         }
+        
+        #content {
+            width: 95%;
+            height: 95%;
+            padding: 15px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: #fff;
+        }
+        
+        #main {
+            background-color: #e3e3e3;
+            height: 100%;
+            width: 100%;
+        }
+        
+        .ipg {
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            padding: 8px;
+            border: none;
+            outline: none;
+            background: #3367d6;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-top: 20px;
+        }
+        
+        .ipg0 {
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            padding: 8px;
+            border: none;
+            outline: none;
+            background: #3367d6;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-top: 20px;
+        }
     </style>
 </head>
 
 <body>
-    <div id=content></div>
+    <div id=main>
+        <div id=content></div>
+        <div class=center_stuff>
+            <div id=player-div style='display: none;'>
+                <iframe id='player-frame' style="height: 400px;width: 100%"></iframe>
+                <div class=sources>
+                    <button data=null class=ipg id=source1>source1</button>
+                    <button data=null class=ipg id=source2>source2</button>
+                    <button class=ipg data=null id=source3>source3</button>
+                </div>
+                <div>
+                    <button class=ipg0 style="display: none" id=custom-dl>Click Here to Use our custom Video Downloader</button>
+                    <button class=ipgs id=downloader-info>info</button>
+                    <div id=hdn-info style="display: none">We Will download the video from the website or extract the mp4 url for you to watch the video without any ads at all!</div>
+                </div>
+                <div style="margin-top: 20px;cursor: pointer;" id=gbck>Click here to Go Back</div>
+            </div>
+        </div>
+    </div>
     <script>
+        document.getElementById("gbck").onclick = function() {
+            document.getElementById("content").style.display = 'block';
+            document.getElementById("player-frame").style.display = 'none';
+        }
+
+        function extractHostname(url) {
+            var hostname;
+            if (url.indexOf("://") > -1) {
+                hostname = url.split('/')[2];
+            } else {
+                hostname = url.split('/')[0];
+            }
+            hostname = hostname.split(':')[0];
+            hostname = hostname.split('?')[0];
+
+            return hostname;
+        }
+        document.getElementById("downloader-info").onclick = function() {
+            document.getElementById("hdn-info").style.display = 'block';
+        }
         var xhr = new XMLHttpRequest();
-        var params = "q=" + encodeURIComponent("{{q|safe}}");
+        var params = "q=" + eval('encodeURIComponent("{{q|safe}}")');
         xhr.open("POST", '/data/search/', true);
         xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhr.onreadystatechange = function() {
@@ -70,9 +166,44 @@
         xhr.send(params);
 
         function gen_results(data) {
+            data = JSON.parse(data)
             for (var i = 0; i < data['movies'].length; i++) {
-
+                img = document.createElement("img");
+                img.src = "/data/imagebin/" + encodeURI(data['movies'][i]['thumb']);
+                dv = document.createElement("span")
+                dv.setAttribute("data-1", data['movies'][i]['url']);
+                dv.setAttribute("data-2", data['movies'][i]['url1']);
+                dv.setAttribute("data-3", data['movies'][i]['url2']);
+                dv.appendChild(img);
+                img.style.height = "200px";
+                img.style.width = "150px";
+                img.style.cursor = "pointer";
+                sp = document.createElement("span");
+                sp.innerHTML = data['movies'][i]['movie'];
+                sp.style.display = "block";
+                dv.appendChild(sp);
+                dv.onclick = function() {
+                    var content = document.getElementById("content");
+                    var player = document.getElementById("player-div");
+                    content.style.display = "none";
+                    player.style.display = 'block';
+                    document.getElementById("source1").setAttribute("data", this.getAttribute("data-1"));
+                    document.getElementById("source2").setAttribute("data", this.getAttribute("data-2"));
+                    document.getElementById("source3").setAttribute("data", this.getAttribute("data-3"));
+                    btns_ = document.getElementsByClassName("ipg");
+                    for (var r = 0; r < btns_.length; r++) {
+                        btns_[r].onclick = function() {
+                            document.getElementById("player-frame").src = this.getAttribute("data");
+                            document.getElementById("custom-dl").style.display = 'inline';
+                        }
+                        btns_[r].innerText = extractHostname(btns_[r].getAttribute("data"));
+                    }
+                }
+                document.getElementById("content").appendChild(dv);
             }
+        }
+        document.getElementById("custom-dl").onclick = function() {
+            window.location = '/out?url=' + encodeURIComponent(document.getElementById("player-frame").src)
         }
     </script>
 </body>
