@@ -23,7 +23,7 @@
             user-select: none;
             margin-top: 20px;
         }
-
+        
         .ipgs {
             -moz-border-radius: 20px;
             -webkit-border-radius: 20px;
@@ -36,7 +36,7 @@
             cursor: pointer;
             transition: 0.5s;
         }
-
+        
         .input_n {
             -moz-border-radius: 15px;
             -webkit-border-radius: 15px;
@@ -45,7 +45,7 @@
             height: 30px;
             padding: 8px;
         }
-
+        
         .center_stuff {
             margin-left: auto;
             margin-right: auto;
@@ -57,16 +57,22 @@
 <body>
     <div id=content></div>
     <script>
-        var data = JSON.parse('{{data|safe}}');
-        for (var i = 0; i < data.length; i++) {
-            var div = document.getElementById("content");
-            var span = document.createElement("button");
-            span.setAttribute("class", "ipgs");
-            span.innerHTML = data[i]
-            a = document.createElement("a");
-            a.href = "/out?url=" + encodeURIComponent(data[i])
-            a.appendChild(span)
-            div.appendChild(a);
+        var xhr = new XMLHttpRequest();
+        var params = "q=" + encodeURIComponent("{{q|safe}}");
+        xhr.open("POST", '/data/search/', true);
+        xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4 && xhr.status == 200) {
+                var data = xhr.response;
+                gen_results(data);
+            }
+        }
+        xhr.send(params);
+
+        function gen_results(data) {
+            for (var i = 0; i < data['movies'].length; i++) {
+
+            }
         }
     </script>
 </body>

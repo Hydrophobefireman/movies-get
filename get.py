@@ -1,35 +1,59 @@
-import base64
 import json
 import os
 import re
-import psycopg2
+import uuid
 from urllib.parse import quote, unquote
 
+import psycopg2
 import requests
 from bs4 import BeautifulSoup as bs
 from flask import Flask, redirect, render_template, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 
+import dbmanage
 import streamsites as st
 
 app = Flask(__name__)
+app.secret_key = "Su2nd9"
+dburl = os.environ.get('DATABASE_URL')
 try:
-    with open(".dbinfo_", "r") as f:
-        dburl = f.read()
-except:  # heroku
-    dburl = os.environ.get('DATABASE_URL')
+    if dburl is None:
+        with open(".dbinfo_", "r") as f:
+            dburl = f.read()
+except FileNotFoundError:
+    print("No DB url specified try add it to the environment or create a .dbinfo_ file with the url")
+
 app.config['SQLALCHEMY_DATABASE_URI'] = dburl
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
 
 
-class moviedata(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+class movieData(db.Model):
+    mid = db.Column(db.Integer, primary_key=True)
+    movie = db.Column(db.String(100))
+    url = db.Column(db.String(1000))
+    alt1 = db.Column(db.String(1000))
+    alt2 = db.Column(db.String(1000))
+    thumb = db.Column(db.String(1000))
+
+    def __init__(self, movie, url, alt1, alt2, thumb):
+        self.movie = movie
+        self.url = url
+        self.alt1 = alt1
+        self.alt2 = alt2
+        self.thumb = thumb
+
+    def __repr__(self):
+        return '<Name %r>' % self.movie
+
+
+class movieRequests(db.Model):
+    r_id = db.Column(db.Integer, primary_key=True)
     movie = db.Column(db.String(100))
     url = db.Column(db.String(1000))
 
-    def __init__(self, movie, url):
+    def __init__(self, movie, url=None):
         self.movie = movie
         self.url = url
 
@@ -59,12 +83,50 @@ def urlcheck(url):
         return False
 
 
+@app.before_request
+def https():
+    if request.endpoint in app.view_functions and not request.is_secure and not "127.0.0.1" in request.url and not "localhost" in request.url:
+        return redirect(request.url.replace("http://", "https://"), code=301)
+    if request.method == "GET" and not session.get("verified"):
+        print(session.get("verified"))
+        session['nonce'] = "_"+str(uuid.uuid4())
+        return render_template("verifysess.html", nonce=session['nonce'], to=request.url)
+
+
+@app.route("/scr/", methods=['POST'])
+def check__():
+    data = request.form['jchk']
+    if data != session['nonce']:
+        return "no"
+    session['verified'] = True
+    return redirect(request.form['redir'])
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
 
 @app.route("/search/")
+def send_m():
+    if request.args.get("q") is None:
+        return "Specify a term!"
+    return render_template("movie.html", q=request.args.get("q"))
+
+
+@app.route("/data/search/", methods=['POST'])
+def serchs():
+    json_data = {}
+    json_data['movies'] = []
+    q = request.form["q"]
+    urls = movieData.query.filter(movieData.movie.startswith(q)).all()
+    for url in urls:
+        json_data['movies'].append(
+            {"movie": url.movie, "url": url.url, "url1": url.alt1, "url2": url.alt2})
+    return json.dumps(json_data)
+
+
+@app.route("/search/g/")
 def ble():
     q = request.args.get("q")
     q = "watch "+q
@@ -104,4 +166,4 @@ def redir():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

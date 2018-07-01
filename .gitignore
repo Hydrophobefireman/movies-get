@@ -24,7 +24,9 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
-
+#CUSTOM
+.cloudinary
+*.cloudinary
 *.dbinfo_
 .dbinfo_
 # PyInstaller
