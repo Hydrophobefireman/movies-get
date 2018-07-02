@@ -3,7 +3,7 @@ import os
 import re
 import uuid
 from urllib.parse import quote, unquote
-
+from htmlmin.minify import html_minify
 import psycopg2
 import requests
 from bs4 import BeautifulSoup as bs
@@ -87,12 +87,12 @@ def urlcheck(url):
 
 @app.before_request
 def https():
-    if request.endpoint in app.view_functions and not request.is_secure and not "127.0.0.1" in request.url and not "localhost" in request.url:
+    if request.endpoint in app.view_functions and not request.is_secure and "127.0.0.1" not in request.url and not "localhost" in request.url:
         return redirect(request.url.replace("http://", "https://"), code=301)
     if request.method == "GET" and not session.get("verified"):
         print(session.get("verified"))
         session['nonce'] = "_"+str(uuid.uuid4())
-        return render_template("verifysess.html", nonce=session['nonce'], to=request.url)
+        return html_minify(render_template("verifysess.html", nonce=session['nonce'], to=request.url))
 
 
 @app.route("/scr/", methods=['POST'])
@@ -110,25 +110,25 @@ def index():
         d = "Thanks for helping us out!"
     else:
         d = " "
-    return render_template("index.html", msg=d)
+    return html_minify(render_template("index.html", msg=d))
 
 
 @app.route("/search")
 def send_m():
     if request.args.get("q") is None or not re.sub(r"[^\w]", "", request.args.get("q")):
         return "Specify a term!"
-    return render_template("movies.html", q=request.args.get("q"))
+    return html_minify(render_template("movies.html", q=request.args.get("q")))
 
 
 @app.route("/help-us/")
 def ask_get():
-    return render_template("help.html")
+    return html_minify(render_template("help.html"))
 
 
 @app.route("/db-manage/parse-requests/", methods=['POST'])
 def get_s():
     movie = request.form.get('movie')
-    if not movie:
+    if not re.sub(r"\s", "", movie):
         print("No movie Given")
         return "Please mention the movie"
     url = request.form.get('url')
@@ -159,6 +159,7 @@ def redirtoimg(url):
 
 @app.route("/search/g/")
 def ble():
+    raise NotImplementedError("Nah")
     q = request.args.get("q")
     q = "watch "+q
     url = "https://google.com/search?q="+quote(q)
@@ -187,7 +188,7 @@ def ble():
             ret += sites
         else:
             ret.append(url)
-    return render_template("movies.html", data=json.dumps(ret))
+    return html_minify(render_template("movies-google.html", data=json.dumps(ret)))
 
 
 @app.route("/out")
