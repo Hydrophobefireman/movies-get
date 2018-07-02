@@ -7,13 +7,14 @@ from urllib.parse import quote, unquote
 import psycopg2
 import requests
 from bs4 import BeautifulSoup as bs
-from flask import (Flask, redirect, render_template, request, session, url_for)
+from flask import Flask, redirect, render_template, request, session, url_for
 from flask_sqlalchemy import SQLAlchemy
 
+from dbmanage import req_db
 import streamsites as st
 
 app = Flask(__name__)
-app.secret_key = "Su)(d9"
+app.secret_key = "S9(c#d4"
 dburl = os.environ.get('DATABASE_URL')
 try:
     if dburl is None:
@@ -105,14 +106,37 @@ def check__():
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    if session.get("req-data"):
+        d = "Thanks for helping us out!"
+    else:
+        d = " "
+    return render_template("index.html", msg=d)
 
 
-@app.route("/search/")
+@app.route("/search")
 def send_m():
-    if request.args.get("q") is None:
+    if request.args.get("q") is None or not re.sub(r"[^\w]", "", request.args.get("q")):
         return "Specify a term!"
     return render_template("movies.html", q=request.args.get("q"))
+
+
+@app.route("/help-us/")
+def ask_get():
+    return render_template("help.html")
+
+
+@app.route("/db-manage/parse-requests/", methods=['POST'])
+def get_s():
+    movie = request.form.get('movie')
+    if not movie:
+        print("No movie Given")
+        return "Please mention the movie"
+    url = request.form.get('url')
+    data = (movie, url)
+    a = req_db(data)
+    print(a)
+    session['req-data'] = True
+    return redirect("/", 301)
 
 
 @app.route("/data/search/", methods=['POST'])
@@ -173,4 +197,4 @@ def redir():
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')

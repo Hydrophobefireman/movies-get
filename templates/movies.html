@@ -123,8 +123,8 @@
                     <button data=null class=ipg id=source2>source2</button>
                     <button class=ipg data=null id=source3>source3</button>
                 </div>
-                <div>
-                    <button class=ipg0 style="display: none" id=custom-dl>Click Here to Use our custom Video Downloader</button>
+                <div id=custom-dl-box style='display:none'>
+                    <button class=ipg0 id=custom-dl>Click Here to Use our custom Video Downloader</button>
                     <button class=ipgs id=downloader-info>info</button>
                     <div id=hdn-info style="display: none">We Will download the video from the website or extract the mp4 url for you to watch the video without any ads at all!</div>
                 </div>
@@ -135,7 +135,8 @@
     <script>
         document.getElementById("gbck").onclick = function() {
             document.getElementById("content").style.display = 'block';
-            document.getElementById("player-frame").style.display = 'none';
+            document.getElementById("player-div").style.display = 'none';
+            document.getElementById("player-frame").src = "";
         }
 
         function extractHostname(url) {
@@ -174,6 +175,7 @@
                 dv.setAttribute("data-1", data['movies'][i]['url']);
                 dv.setAttribute("data-2", data['movies'][i]['url1']);
                 dv.setAttribute("data-3", data['movies'][i]['url2']);
+                dv.style.display = 'inline-block';
                 dv.appendChild(img);
                 img.style.height = "200px";
                 img.style.width = "150px";
@@ -182,6 +184,7 @@
                 sp.innerHTML = data['movies'][i]['movie'];
                 sp.style.display = "block";
                 dv.appendChild(sp);
+                dv.style.margin = "10px";
                 dv.onclick = function() {
                     var content = document.getElementById("content");
                     var player = document.getElementById("player-div");
@@ -194,7 +197,7 @@
                     for (var r = 0; r < btns_.length; r++) {
                         btns_[r].onclick = function() {
                             document.getElementById("player-frame").src = this.getAttribute("data");
-                            document.getElementById("custom-dl").style.display = 'inline';
+                            document.getElementById("custom-dl-box").style.display = 'block';
                         }
                         btns_[r].innerText = extractHostname(btns_[r].getAttribute("data"));
                         btns_[r].style.display = ((btns_[r].getAttribute("data") == 'null') ? 'none' : 'inline')
