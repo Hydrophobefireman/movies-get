@@ -149,6 +149,8 @@ def serchs():
     for url in urls:
         json_data['movies'].append(
             {"movie": url.moviedisplay, "url": url.url, "url1": url.alt1, "url2": url.alt2, "thumb": url.thumb})
+    if len(json_data['movies']) == 0:
+        return render_template("no-result.html")
     return json.dumps(json_data)
 
 
