@@ -25,7 +25,7 @@ wheels/
 *.egg
 MANIFEST
 #CUSTOM
-js.obfuscated
+js-obfuscated.js
 *.obfuscated
 .obfuscated
 .cloudinary
