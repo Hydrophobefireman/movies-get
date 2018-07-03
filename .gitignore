@@ -29,6 +29,7 @@ js.obfuscated
 *.obfuscated
 .obfuscated
 .cloudinary
+api.py
 *.cloudinary
 *.dbinfo_
 .dbinfo_
