@@ -68,9 +68,9 @@ def scrape(url):
         l += 1
     driver.quit()
     if len(data) != 3:
-        nones = 3-len(data)
-        for i in range(nones):
-            data.append(None)
+        nones = [None]*(3-len(data))
+        for i in nones:
+            data.append(i)
     return data
 
 
