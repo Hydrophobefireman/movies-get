@@ -154,7 +154,7 @@ def serchs():
     return json.dumps(json_data)
 
 
-@app.route("/no-result")
+@app.route("/no-result/")
 def b404():
     return render_template("no-result.html")
 
