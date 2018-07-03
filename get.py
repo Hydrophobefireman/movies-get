@@ -89,10 +89,10 @@ def urlcheck(url):
 def https():
     if request.endpoint in app.view_functions and not request.is_secure and "127.0.0.1" not in request.url and not "localhost" in request.url:
         return redirect(request.url.replace("http://", "https://"), code=301)
-    if request.method == "GET" and not session.get("verified"):
-        print(session.get("verified"))
-        session['nonce'] = "_"+str(uuid.uuid4())
-        return html_minify(render_template("verifysess.html", nonce=session['nonce'], to=request.url))
+   # if request.method == "GET" and not session.get("verified"):
+ #       print(session.get("verified"))
+      #  session['nonce'] = "_"+str(uuid.uuid4())
+  #      return html_minify(render_template("verifysess.html", nonce=session['nonce'], to=request.url))
 
 
 @app.route("/scr/", methods=['POST'])
