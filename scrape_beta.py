@@ -1,6 +1,7 @@
 import re
 import json
 import requests
+import ippl
 from bs4 import BeautifulSoup as bs
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
@@ -16,12 +17,23 @@ def scrape(url):
         attrs={"id": 'les-content'}) or soup.find(attrs={"class": 'les-content'})
     if content_div:
         data = les_content_parser(content_div)
+        if data:
+            return data
     else:
-        url = re.search(r"var\s*locations)\s?=\s?.*?(?<=;)",
+        url = re.search(r"var\s*locations\s?=\s?.*?(?<=;)",
                         url, re.IGNORECASE)
         if url:
             return [url.group()]
-        return try_ipplayer_search(page)
+        urls = iframe_src_or_none(soup)
+        if urls:
+            return urls
+        ippl_try = try_ipplayer_search(url)
+        if ippl_try:
+            return ippl_try
+
+
+def try_ipplayer_search(url):
+    return 5
 
 
 def les_content_parser(div):
@@ -58,3 +70,37 @@ def urlcheck(url):
         return True
     else:
         return False
+
+
+def iframe_src_or_none(page):
+    iframe = page.findAll("iframe", attrs={"src": True})
+    data = []
+    reg = r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+'
+    for fr in iframe:
+        if fr.attrs.get("src") is None:
+            continue
+        print("Found an Iframe url")
+        f = fr.attrs['src']
+        if "kizyplayer" in f:
+            print("Using Kizy Player")
+            if f.startswith("//"):
+                f = "http:"+f
+            source = requests.get(f, headers={"User-Agent": USER_AGENT}).text
+            url = re.search(
+                r"addiframe\(('|\")(?P<url>.*?)('|\"),", source, re.IGNORECASE)
+            if url:
+                url = url.group('url')
+                if url.startswith("//"):
+                    url = 'http:'+url
+                print("Fetching:", url)
+                source = requests.get(url, headers={
+                    "User-Agent": USER_AGENT, "Referer": f}).text
+                urls = re.findall(r"(?s)file:\s?['|\"].*?['|\"],", source)
+                for r in urls:
+                    data.append(re.search(reg, r).group())
+                return data
+    return None
+
+
+if __name__ == '__main__':
+    print(scrape(input("url:")))

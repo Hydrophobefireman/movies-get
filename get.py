@@ -41,9 +41,9 @@ class movieData(db.Model):
     def __init__(self, movie, url, alt1, alt2, thumb):
         self.movie = re.sub(r"\s", "", movie).lower()
         self.moviedisplay = movie
-        self.url = url
-        self.alt1 = alt1
-        self.alt2 = alt2
+        self.url = url.replace("http://", "https://")
+        self.alt1 = alt1.replace("http://", "https://")
+        self.alt2 = alt2.replace("http://", "https://")
         self.thumb = thumb
 
     def __repr__(self):
@@ -150,7 +150,7 @@ def serchs():
         json_data['movies'].append(
             {"movie": url.moviedisplay, "url": url.url, "url1": url.alt1, "url2": url.alt2, "thumb": url.thumb})
     if len(json_data['movies']) == 0:
-        return json.dumps({'redirect':'/no-result'})
+        return json.dumps({'redirect': '/no-result'})
     return json.dumps(json_data)
 
 
