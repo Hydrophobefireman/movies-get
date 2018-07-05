@@ -1,0 +1,186 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="keywords" content="movies,movies-get,free movies,{{movie.replace(' ',',')|safe}}" />
+    <meta name='og:url' content="{{og_url|safe}}" />
+    <meta name='og:image' content="{{og_image|safe}}" />
+    <link rel="canonical" href="{{og_url|safe}}" />
+    <script>
+        var movie_id_data = "12_8cs";
+    </script>
+    <meta name='og:site_name' content="movies-get" />
+    <meta name='og:description' content="Watch {{movie}} For Free on movies-get!" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <meta name="robots" content="index,follow" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <title>Watch {{movie|safe}}</title>
+    <style>
+        .ipg0 {
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            padding: 8px;
+            border: none;
+            outline: none;
+            background: #3367d6;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-top: 20px;
+        }
+        
+        .input_n {
+            -moz-border-radius: 15px;
+            -webkit-border-radius: 15px;
+            border-radius: 15px;
+            width: 45%;
+            height: 30px;
+            padding: 8px;
+        }
+        
+        .submit-button {
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            padding: 8px;
+            border: none;
+            outline: none;
+            background: #3367d6;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-top: 20px;
+        }
+        
+        .center_stuff {
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+        
+        .ipg {
+            -moz-border-radius: 20px;
+            -webkit-border-radius: 20px;
+            border-radius: 20px;
+            margin-left: 5px;
+            margin-right: 5px;
+            padding: 8px;
+            border: none;
+            outline: none;
+            background: #3367d6;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class=content-box>
+        <div class=center_stuff>
+            <div id=main>
+                <form action="/search">
+                    <input class=input_n style="outline: none" type="text" name="q">
+                    <input type="submit" id=fr-ui7-2-g11g class=submit-button style="width:10%;" value='Go'>
+                </form>
+                <div id="custom-dl-box" style='display: none'><button class="ipg0" id="custom-dl">Click Here to Use our custom Video Downloader</button><button class="ipg" id="downloader-info">info</button>
+                    <div id="hdn-info" style="display: none">We Will download the video from the website or extract the mp4 url for you to watch the video without any ads at all!</div>
+                </div>
+                <div id=content>
+                    <iframe id=player-frame style="width: 100%;height: 500px;"></iframe>
+                    <div class="sources">
+                        <button class="ipg" id="source1">source1</button>
+                        <button class="ipg" id="source2">source2</button>
+                        <button class="ipg" id="source3">source3</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            var _0x81d8 = ["\x3A\x2F\x2F", "\x69\x6E\x64\x65\x78\x4F\x66", "\x68\x74\x74\x70\x3A\x2F\x2F", "\x68\x6F\x73\x74\x6E\x61\x6D\x65", "\x6E\x75\x6C\x6C", "\x76\x61\x72\x20\x6D\x6F\x76\x69\x65\x5F\x69", "\x64\x20\x3D", "\x77\x69\x6E\x64\x6F", "\x77", "\x2E", "\x6C\x6F", "\x63\x61\x74\x69\x6F", "\x6E\x2E\x70", "\x61\x74\x68\x6E", "\x61\x6D\x65", "\x2E\x73", "\x70\x6C\x69\x74\x28\x27", "\x2F\x27\x29\x5B", "\x32\x5D", "\x70", "\x61", "\x72\x61\x6D\x73\x3D\x27\x69\x64\x3D\x27\x2B\x6D\x6F", "\x76\x69\x65\x5F\x69\x64", "\x50", "\x4F\x53\x54", "\x2F\x64\x61\x74", "\x61\x2D\x70\x61\x72\x73\x65\x72\x2F", "\x70\x6C\x75\x67\x69\x6E", "\x73\x2F\x70\x6C\x61\x79\x65\x72\x2F", "\x6F\x70\x65\x6E", "\x43\x6F\x6E\x74\x65\x6E\x74\x2D\x74\x79\x70\x65", "\x61\x70\x70\x6C\x69\x63\x61\x74\x69\x6F\x6E\x2F\x78\x2D\x77\x77\x77\x2D\x66\x6F\x72\x6D\x2D\x75\x72\x6C\x65\x6E\x63\x6F\x64\x65\x64", "\x73\x65\x74\x52\x65\x71\x75\x65\x73\x74\x48\x65\x61\x64\x65\x72", "\x6F\x6E\x72\x65\x61\x64\x79\x73\x74\x61\x74\x65\x63\x68\x61\x6E\x67\x65", "\x72\x65\x61\x64\x79\x53\x74\x61\x74\x65", "\x73\x74\x61\x74\x75\x73", "\x72\x65\x73\x70\x6F\x6E\x73\x65", "\x73\x65\x6E\x64", "\x6F\x6E\x63\x6C\x69\x63\x6B", "\x63", "\x75", "\x73", "\x74\x6F\x6D\x2D\x64\x6C", "\x67\x65\x74\x45\x6C\x65\x6D\x65\x6E\x74\x42\x79\x49\x64", "\x6C\x6F\x63\x61\x74\x69\x6F\x6E", "\x2F\x6F\x75\x74\x3F\x75\x72\x6C\x3D", "\x73\x72\x63", "\x70\x6C\x61\x79\x65\x72\x2D\x66\x72\x61\x6D\x65", "\x64\x69\x73\x70\x6C\x61\x79", "\x73\x74\x79\x6C\x65", "\x63\x75\x73\x74\x6F\x6D\x2D\x64\x6C\x2D\x62\x6F\x78", "\x62\x6C\x6F\x63\x6B", "\x70\x61\x72\x73\x65", "\x75\x72\x6C", "\x61\x6C\x74\x31", "\x61\x6C\x74\x32", "\x73\x6F\x75\x72\x63\x65\x31", "\x64\x61\x74\x61", "\x73\x65\x74\x41\x74\x74\x72\x69\x62\x75\x74\x65", "\x69\x6E\x6E\x65\x72\x48\x54\x4D\x4C", "\x6E\x6F\x6E\x65", "\x69\x6E\x6C\x69\x6E\x65", "\x73\x6F\x75\x72\x63\x65\x32", "\x73\x6F\x75\x72\x63\x65\x33", "\x6C", "\x79", "\x65", "\x72", "\x2D", "\x66", "\x6D", "\x69\x70\x67", "\x67\x65\x74\x45\x6C\x65\x6D\x65\x6E\x74\x73\x42\x79\x43\x6C\x61\x73\x73\x4E\x61\x6D\x65", "\x6C\x65\x6E\x67\x74\x68", "\x67\x65\x74\x41\x74\x74\x72\x69\x62\x75\x74\x65", "\x64\x6F\x77\x6E\x6C\x6F\x61\x64\x65\x72\x2D\x69\x6E\x66\x6F", "\x68\x64\x6E\x2D\x69\x6E\x66\x6F"];
+
+            function extractHostname(_0x5c7bx2) {
+                try {
+                    var a;
+                    if (_0x5c7bx2[_0x81d8[1]](_0x81d8[0]) > -1) {
+                        a = new URL(_0x5c7bx2)
+                    } else {
+                        _0x5c7bx2 = _0x81d8[2] + _0x5c7bx2;
+                        a = new URL(_0x5c7bx2)
+                    };
+                    return a[_0x81d8[3]]
+                } catch (e) {
+                    return _0x81d8[4]
+                }
+            }
+            eval(_0x81d8[5] + _0x81d8[6] + _0x81d8[7] + _0x81d8[8] + _0x81d8[9] + _0x81d8[10] + _0x81d8[11] + _0x81d8[12] + _0x81d8[13] + _0x81d8[14] + _0x81d8[15] + _0x81d8[16] + _0x81d8[17] + _0x81d8[18]);
+            eval(_0x81d8[19] + _0x81d8[20] + _0x81d8[21] + _0x81d8[22]);
+            var xhr = new XMLHttpRequest();
+            xhr[_0x81d8[29]](_0x81d8[23] + _0x81d8[24], _0x81d8[25] + _0x81d8[26] + _0x81d8[27] + _0x81d8[28], true);
+            xhr[_0x81d8[32]](_0x81d8[30], _0x81d8[31]);
+            xhr[_0x81d8[33]] = function() {
+                if (xhr[_0x81d8[34]] == 4 && xhr[_0x81d8[35]] == 200) {
+                    var _0x5c7bx5 = xhr[_0x81d8[36]];
+                    build_player(_0x5c7bx5)
+                }
+            };
+            xhr[_0x81d8[37]](params);
+            document[_0x81d8[43]](_0x81d8[39] + _0x81d8[40] + _0x81d8[41] + _0x81d8[42])[_0x81d8[38]] = function() {
+                window[_0x81d8[44]] = _0x81d8[45] + encodeURIComponent(document[_0x81d8[43]](_0x81d8[47])[_0x81d8[46]])
+            };
+
+            function build_player(_0x5c7bx5) {
+                document[_0x81d8[43]](_0x81d8[50])[_0x81d8[49]][_0x81d8[48]] = _0x81d8[51];
+                _0x5c7bx5 = JSON[_0x81d8[52]](_0x5c7bx5);
+                var _0x5c7bx2 = _0x5c7bx5[_0x81d8[53]];
+                var _0x5c7bx7 = _0x5c7bx5[_0x81d8[54]];
+                var _0x5c7bx8 = _0x5c7bx5[_0x81d8[55]];
+                var _0x5c7bx9 = document[_0x81d8[43]](_0x81d8[56]);
+                _0x5c7bx9[_0x81d8[58]](_0x81d8[57], _0x5c7bx2);
+                _0x5c7bx9[_0x81d8[59]] = extractHostname(_0x5c7bx2);
+                _0x5c7bx9[_0x81d8[49]][_0x81d8[48]] = ((extractHostname(_0x5c7bx2) == _0x81d8[4]) ? _0x81d8[60] : _0x81d8[61]);
+                var _0x5c7bxa = document[_0x81d8[43]](_0x81d8[62]);
+                _0x5c7bxa[_0x81d8[58]](_0x81d8[57], _0x5c7bx7);
+                _0x5c7bxa[_0x81d8[59]] = extractHostname(_0x5c7bx7);
+                _0x5c7bxa[_0x81d8[49]][_0x81d8[48]] = ((extractHostname(_0x5c7bx7) == _0x81d8[4]) ? _0x81d8[60] : _0x81d8[61]);
+                var _0x5c7bxb = document[_0x81d8[43]](_0x81d8[63]);
+                _0x5c7bxb[_0x81d8[58]](_0x81d8[57], _0x5c7bx8);
+                _0x5c7bxb[_0x81d8[59]] = extractHostname(_0x5c7bx8);
+                _0x5c7bxb[_0x81d8[49]][_0x81d8[48]] = ((extractHostname(_0x5c7bx8) == _0x81d8[4]) ? _0x81d8[60] : _0x81d8[61]);
+                document[_0x81d8[43]](_0x81d8[19] + _0x81d8[64] + _0x81d8[20] + _0x81d8[65] + _0x81d8[66] + _0x81d8[67] + _0x81d8[68] + _0x81d8[69] + _0x81d8[67] + _0x81d8[20] + _0x81d8[70] + _0x81d8[66])[_0x81d8[46]] = _0x5c7bx2
+            }
+            var btns = document[_0x81d8[72]](_0x81d8[71]);
+            for (var a = 0; a < btns[_0x81d8[73]]; a++) {
+                btns[a][_0x81d8[38]] = function() {
+                    var _0x5c7bxd = document[_0x81d8[43]](_0x81d8[19] + _0x81d8[64] + _0x81d8[20] + _0x81d8[65] + _0x81d8[66] + _0x81d8[67] + _0x81d8[68] + _0x81d8[69] + _0x81d8[67] + _0x81d8[20] + _0x81d8[70] + _0x81d8[66]);
+                    _0x5c7bxd[_0x81d8[46]] = this[_0x81d8[74]](_0x81d8[57])
+                }
+            };
+            document[_0x81d8[43]](_0x81d8[75])[_0x81d8[38]] = function() {
+                document[_0x81d8[43]](_0x81d8[76])[_0x81d8[49]][_0x81d8[48]] = _0x81d8[51]
+            }
+        </script>
+</body>
+
+</html>

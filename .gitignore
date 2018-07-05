@@ -25,6 +25,8 @@ wheels/
 *.egg
 MANIFEST
 #CUSTOM
+js-obfs.js
+js-player.obfs.js
 js-obfuscated.js
 *.obfuscated
 .obfuscated

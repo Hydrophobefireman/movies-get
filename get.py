@@ -1,17 +1,19 @@
+import base64
 import json
 import os
 import re
 import uuid
 from urllib.parse import quote, unquote
-from htmlmin.minify import html_minify
+
 import psycopg2
 import requests
 from bs4 import BeautifulSoup as bs
-from flask import Flask, redirect, render_template, request, session, url_for
+from flask import Flask, redirect, render_template, request, session, url_for, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
+from htmlmin.minify import html_minify
 
-from dbmanage import req_db
 import streamsites as st
+from dbmanage import req_db
 
 app = Flask(__name__)
 app.secret_key = "S9(c#d4"
@@ -139,19 +141,46 @@ def get_s():
     return redirect("/", 301)
 
 
+@app.route("/googlef06ee521abc7bdf8.html")
+def google_():
+    return "google-site-verification: googlef06ee521abc7bdf8.html"
+
+
 @app.route("/data/search/", methods=['POST'])
 def serchs():
     json_data = {}
     json_data['movies'] = []
     q = re.sub(r"\s", "", request.form["q"]).lower()
-    print(q)
     urls = movieData.query.filter(
         movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
     for url in urls:
         json_data['movies'].append(
-            {"movie": url.moviedisplay, "url": url.url, "url1": url.alt1, "url2": url.alt2, "thumb": url.thumb})
+            {"movie": url.moviedisplay, 'id': url.mid, "thumb": url.thumb})
     if len(json_data['movies']) == 0:
         return json.dumps({'redirect': '/no-result'})
+    return json.dumps(json_data)
+
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/x-icon')
+
+
+@app.route("/movie/<mid>/<mdata>/")
+def send_movie(mid, mdata):
+    if not mid.isdigit():
+        return "Nope"
+    meta_ = movieData.query.filter_by(mid=int(mid)).first()
+    movie_name = meta_.moviedisplay
+    thumbnail = meta_.thumb
+    return render_template("player.html", movie=movie_name, og_url=request.url, og_image=thumbnail)
+
+
+@app.route("/data-parser/plugins/player/", methods=['POST'])
+def plugin():
+    mid = request.form['id']
+    data = movieData.query.filter_by(mid=int(mid)).first()
+    json_data = {"url": data.url, "alt1": data.alt1, "alt2": data.alt2}
     return json.dumps(json_data)
 
 
