@@ -6,6 +6,7 @@ import uuid
 from urllib.parse import quote, unquote
 
 import psycopg2
+import random
 import requests
 from bs4 import BeautifulSoup as bs
 from flask import Flask, redirect, render_template, request, session, url_for, send_from_directory
@@ -92,6 +93,7 @@ def https():
     if request.endpoint in app.view_functions and not request.is_secure and "127.0.0.1" not in request.url and not "localhost" in request.url:
         return redirect(request.url.replace("http://", "https://"), code=301)
 
+
 @app.route("/scr/", methods=['POST'])
 def check__():
     data = request.form['jchk']
@@ -168,12 +170,16 @@ def send_movie(mid, mdata):
     meta_ = movieData.query.filter_by(mid=int(mid)).first()
     movie_name = meta_.moviedisplay
     thumbnail = meta_.thumb
-    return render_template("player.html", movie=movie_name, og_url=request.url, og_image=thumbnail)
+    r_n = random.randint(4, 25)
+    session['req_nonce'] = (str(uuid.uuid1())+str(uuid.uuid4()))[:r_n]
+    return render_template("player.html", nonce=session['req_nonce'], movie=movie_name, og_url=request.url, og_image=thumbnail)
 
 
 @app.route("/data-parser/plugins/player/", methods=['POST'])
 def plugin():
     mid = request.form['id']
+    if request.form['nonce'] != session['req_nonce']:
+        return "Lol"
     data = movieData.query.filter_by(mid=int(mid)).first()
     json_data = {"url": data.url, "alt1": data.alt1, "alt2": data.alt2}
     return json.dumps(json_data)
