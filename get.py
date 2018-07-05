@@ -91,7 +91,7 @@ def urlcheck(url):
 def https():
     if request.endpoint in app.view_functions and not request.is_secure and "127.0.0.1" not in request.url and not "localhost" in request.url:
         return redirect(request.url.replace("http://", "https://"), code=301)
-    if request.method == "GET" and not session.get("verified") and request.url != "https://movies-get.herokuapp.com/googlef06ee521abc7bdf8.html":
+    if request.method == "GET" and "/search?" in request.url or "/movie" in request.url:
         print(session.get("verified"))
         session['nonce'] = "_"+str(uuid.uuid4())
         return html_minify(render_template("verifysess.html", nonce=session['nonce'], to=request.url))
