@@ -144,6 +144,7 @@ def serchs():
     json_data = {}
     json_data['movies'] = []
     q = re.sub(r"\s", "", request.form["q"]).lower()
+    print(q)
     urls = movieData.query.filter(
         movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
     for url in urls:
