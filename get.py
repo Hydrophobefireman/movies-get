@@ -50,7 +50,6 @@ class movieData(db.Model):
 
     def __init__(self, movie, url, alt1, alt2, thumb):
         self.mid = self.generate_id()
-
         self.movie = re.sub(r"\s", "", movie).lower()
         self.moviedisplay = movie
         self.url = str(url).replace("http://", "https://")
@@ -187,7 +186,7 @@ def send_movie(mid, mdata):
     thumbnail = meta_.thumb
     r_n = random.randint(4, 25)
     session['req_nonce'] = (str(uuid.uuid1())+str(uuid.uuid4()))[:r_n]
-    return render_template("player.html", nonce=session['req_nonce'], movie=movie_name, og_url=request.url, og_image=thumbnail)
+    return html_minify(render_template("player.html", nonce=session['req_nonce'], movie=movie_name, og_url=request.url, og_image=thumbnail))
 
 
 @app.route("/data-parser/plugins/player/", methods=['POST'])
@@ -202,7 +201,7 @@ def plugin():
 
 @app.route("/no-result/")
 def b404():
-    return render_template("no-result.html")
+    return html_minify(render_template("no-result.html"))
 
 
 @app.route("/data/imagebin/<path:url>/")
