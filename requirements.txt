@@ -7,4 +7,4 @@ jac==0.17.1
 beautifulsoup4==4.6.0
 htmlmin==0.1.12
 psycopg2==2.7.5
-
+gunicorn==19.8.1
