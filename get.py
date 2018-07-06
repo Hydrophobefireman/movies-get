@@ -1,24 +1,31 @@
 import base64
 import json
 import os
+import random
 import re
 import uuid
 from urllib.parse import quote, unquote
 
 import psycopg2
-import random
 import requests
 from bs4 import BeautifulSoup as bs
-from flask import Flask, redirect, render_template, request, session, url_for, send_from_directory
+from flask import (Flask, redirect, render_template, request,
+                   send_from_directory, session, url_for)
 from flask_sqlalchemy import SQLAlchemy
 from htmlmin.minify import html_minify
+from jac.contrib.flask import JAC
 
 import streamsites as st
 from dbmanage import req_db
 
 app = Flask(__name__)
+app.config['COMPRESSOR_DEBUG'] = app.config.get('DEBUG')
+app.config['COMPRESSOR_OUTPUT_DIR'] = './static/jsbin'
+app.config['COMPRESSOR_STATIC_PREFIX'] = '/static/jsbin/'
+jac = JAC(app)
 app.secret_key = "S9(c#d4"
 dburl = os.environ.get('DATABASE_URL')
+
 try:
     if dburl is None:
         with open(".dbinfo_", "r") as f:
@@ -94,13 +101,9 @@ def https():
         return redirect(request.url.replace("http://", "https://"), code=301)
 
 
-@app.route("/scr/", methods=['POST'])
+@app.route("/scr/")
 def check__():
-    data = request.form['jchk']
-    if data != session['nonce']:
-        return "no"
-    session['verified'] = True
-    return redirect(request.form['redir'])
+    return redirect("/")
 
 
 @app.route("/")

@@ -1,6 +1,7 @@
 <html>
 
 <head>
+    <script src='/static/scripts/player.js'></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0" />
     <meta name="keywords" content="movies,movies-get,free movies,{{movie.replace(' ',',')|safe}}" />
@@ -117,94 +118,90 @@
                 </div>
             </div>
         </div>
+        {% compress 'js' %}
         <script>
-            var _0xbddb = ['*9182e', 'random', 'var\x20movie_i', 'd\x20=', 'windo', 'n.p', 'plit(\x27', '/\x27)[', '&nonce=', 'open', '/dat', 'a-parser/', 'plugin', 's/player/', 'setRequestHeader', 'application/x-www-form-urlencoded', 'onreadystatechange', 'readyState', 'status', 'response', 'send', 'getElementById', 'tom-dl', 'onclick', 'location', '/out?url=', 'player-frame', 'src', 'custom-dl-box', 'display', 'block', '<html><script>window.location.replace(\x22', 'url', '\x22);<', '/script><noscript><meta\x20http-equiv=\x22refresh\x22\x20content=\x220;url=', '\x22></html>', 'text/html', 'createObjectURL', 'alt1', 'URL', 'alt2', 'source1', 'setAttribute', 'data', 'innerHTML', 'source2', 'style', 'none', 'inline', 'source3', 'getElementsByClassName', 'ipg', 'length', 'getAttribute', 'indexOf', 'hostname', 'null'];
-            (function(_0x452209, _0x3181f3) {
-                var _0x471193 = function(_0x24795c) {
-                    while (--_0x24795c) {
-                        _0x452209['push'](_0x452209['shift']());
+            var _0x36e8 = ['split', 'gen_keys(movie_id);', 'log', 'id=', '&nonce=', '{{nonce}}', 'open', 'POST', '/dat', 'a-parser/', 's/player/', 'setRequestHeader', 'application/x-www-form-urlencoded', 'onreadystatechange', 'readyState', 'send', 'getElementById', 'tom-dl', 'onclick', '/out?url=', 'player-frame', 'src', 'custom-dl-box', 'style', 'display', 'block', 'url', 'alt1', 'alt2', 'data', 'innerHTML', 'none', 'inline', 'source2', 'setAttribute', 'source3', 'getElementsByClassName', 'ipg', 'getAttribute', 'downloader-info', 'hdn-info', 'indexOf', '://', 'http://', 'hostname', 'null', 'location'];
+            (function(_0x502298, _0x4dabe7) {
+                var _0x4468d6 = function(_0x58de6c) {
+                    while (--_0x58de6c) {
+                        _0x502298['push'](_0x502298['shift']());
                     }
                 };
-                _0x471193(++_0x3181f3);
-            }(_0xbddb, 0xa8));
-            var _0x5c80 = function(_0x29c3fb, _0x4e8a14) {
-                _0x29c3fb = _0x29c3fb - 0x0;
-                var _0x5d9d9a = _0xbddb[_0x29c3fb];
-                return _0x5d9d9a;
+                _0x4468d6(++_0x4dabe7);
+            }(_0x36e8, 0x87));
+            var _0x4524 = function(_0x3d371b, _0x2f0ea6) {
+                _0x3d371b = _0x3d371b - 0x0;
+                var _0x14d590 = _0x36e8[_0x3d371b];
+                return _0x14d590;
             };
 
-            function extractHostname(_0x4562ab) {
+            function extractHostname(_0x48a12b) {
                 try {
-                    var _0x18814c;
-                    if (_0x4562ab[_0x5c80('0x0')]('://') > -0x1) {
-                        _0x18814c = new URL(_0x4562ab);
+                    var _0x234ba6;
+                    if (_0x48a12b[_0x4524('0x0')](_0x4524('0x1')) > -0x1) {
+                        _0x234ba6 = new URL(_0x48a12b);
                     } else {
-                        _0x4562ab = 'http://' + _0x4562ab;
-                        _0x18814c = new URL(_0x4562ab);
+                        _0x48a12b = _0x4524('0x2') + _0x48a12b;
+                        _0x234ba6 = new URL(_0x48a12b);
                     }
-                    return _0x18814c[_0x5c80('0x1')];
-                } catch (_0x3ffebf) {
-                    return _0x5c80('0x2');
+                    return _0x234ba6[_0x4524('0x3')];
+                } catch (_0x2a17c8) {
+                    return _0x4524('0x4');
                 }
             }
-            var nonce__ = '{{nonce[:5]}}';
-            eval('var _0xcfed05 = _0x5c80(\'0x3\') + btoa(Math[_0x5c80(\'0x4\')]());');
-            eval(_0x5c80('0x5') + _0x5c80('0x6') + _0x5c80('0x7') + 'w' + '.' + 'lo' + 'catio' + _0x5c80('0x8') + 'athn' + 'ame' + '.s' + _0x5c80('0x9') + _0x5c80('0xa') + '2]');
-            var params = eval('encodeURI(\'id=\' + movie_id + _0x5c80(\'0xb\') + \'{{nonce}}\');');
-            var xhr = new XMLHttpRequest();
-            xhr[_0x5c80('0xc')]('P' + 'OST', _0x5c80('0xd') + _0x5c80('0xe') + _0x5c80('0xf') + _0x5c80('0x10'), !![]);
-            xhr[_0x5c80('0x11')]('Content-type', _0x5c80('0x12'));
-            xhr[_0x5c80('0x13')] = function() {
-                if (xhr[_0x5c80('0x14')] == 0x4 && xhr[_0x5c80('0x15')] == 0xc8) {
-                    var _0x1df8cf = xhr[_0x5c80('0x16')];
-                    build_player(_0x1df8cf);
-                }
-            };
-            xhr[_0x5c80('0x17')](params);
-            document[_0x5c80('0x18')]('c' + 'u' + 's' + _0x5c80('0x19'))[_0x5c80('0x1a')] = function() {
-                window[_0x5c80('0x1b')] = _0x5c80('0x1c') + encodeURIComponent(document[_0x5c80('0x18')](_0x5c80('0x1d'))[_0x5c80('0x1e')]);
+            var movie_id = window[_0x4524('0x5')]['pathname'][_0x4524('0x6')]('/')[0x2];
+            var keys = _0x4524('0x7');
+
+            function start_player(_0x5f20c4) {
+                console[_0x4524('0x8')](_0x5f20c4);
+                var _0x35883f = eval('encodeURI(_0x4524(\'0x9\') + movie_id + _0x4524(\'0xa\') + _0x4524(\'0xb\'));');
+                var _0x1a8ef3 = new XMLHttpRequest();
+                _0x1a8ef3[_0x4524('0xc')](_0x4524('0xd'), _0x4524('0xe') + _0x4524('0xf') + 'plugin' + _0x4524('0x10'), !![]);
+                _0x1a8ef3[_0x4524('0x11')]('Content-type', _0x4524('0x12'));
+                _0x1a8ef3[_0x4524('0x13')] = function() {
+                    if (_0x1a8ef3[_0x4524('0x14')] == 0x4 && _0x1a8ef3['status'] == 0xc8) {
+                        var _0x754d6e = _0x1a8ef3['response'];
+                        build_player(_0x754d6e, _0x5f20c4);
+                    }
+                };
+                _0x1a8ef3[_0x4524('0x15')](_0x35883f);
+            }
+            document[_0x4524('0x16')]('c' + 'u' + 's' + _0x4524('0x17'))[_0x4524('0x18')] = function() {
+                window[_0x4524('0x5')] = _0x4524('0x19') + encodeURIComponent(document[_0x4524('0x16')](_0x4524('0x1a'))[_0x4524('0x1b')]);
             };
 
-            function build_player(_0x17eaae) {
-                document[_0x5c80('0x18')](_0x5c80('0x1f'))['style'][_0x5c80('0x20')] = _0x5c80('0x21');
-                _0x17eaae = JSON['parse'](_0x17eaae);
-                var _0x2eb262 = new Blob([_0x5c80('0x22') + _0x17eaae[_0x5c80('0x23')] + _0x5c80('0x24') + _0x5c80('0x25') + _0x17eaae[_0x5c80('0x23')] + _0x5c80('0x26')], {
-                    'type': _0x5c80('0x27')
-                });
-                var _0x15d85b = window['URL'][_0x5c80('0x28')](_0x2eb262);
-                var _0x2988db = new Blob(['<html><script>window.location.replace(\x22' + _0x17eaae[_0x5c80('0x29')] + '\x22);<' + _0x5c80('0x25') + _0x17eaae['alt1'] + _0x5c80('0x26')], {
-                    'type': _0x5c80('0x27')
-                });
-                var _0x5937aa = window[_0x5c80('0x2a')][_0x5c80('0x28')](_0x2988db);
-                var _0x128322 = new Blob([_0x5c80('0x22') + _0x17eaae['alt2'] + _0x5c80('0x24') + '/script><noscript><meta\x20http-equiv=\x22refresh\x22\x20content=\x220;url=' + _0x17eaae[_0x5c80('0x2b')] + _0x5c80('0x26')], {
-                    'type': _0x5c80('0x27')
-                });
-                var _0x1e4ae9 = window['URL']['createObjectURL'](_0x128322);
-                var _0x23c33d = document[_0x5c80('0x18')](_0x5c80('0x2c'));
-                _0x23c33d[_0x5c80('0x2d')](_0x5c80('0x2e'), _0x15d85b);
-                _0x23c33d[_0x5c80('0x2f')] = extractHostname(_0x17eaae[_0x5c80('0x23')]);
-                _0x23c33d['style'][_0x5c80('0x20')] = extractHostname(_0x17eaae[_0x5c80('0x23')]) == 'null' ? 'none' : 'inline';
-                var _0x494f99 = document[_0x5c80('0x18')](_0x5c80('0x30'));
-                _0x494f99[_0x5c80('0x2d')](_0x5c80('0x2e'), _0x5937aa);
-                _0x494f99[_0x5c80('0x2f')] = extractHostname(_0x17eaae[_0x5c80('0x29')]);
-                _0x494f99[_0x5c80('0x31')][_0x5c80('0x20')] = extractHostname(_0x17eaae[_0x5c80('0x29')]) == _0x5c80('0x2') ? _0x5c80('0x32') : _0x5c80('0x33');
-                var _0x4fa64f = document[_0x5c80('0x18')](_0x5c80('0x34'));
-                _0x4fa64f[_0x5c80('0x2d')]('data', _0x1e4ae9);
-                _0x4fa64f[_0x5c80('0x2f')] = extractHostname(_0x17eaae[_0x5c80('0x2b')]);
-                _0x4fa64f[_0x5c80('0x31')][_0x5c80('0x20')] = extractHostname(_0x17eaae[_0x5c80('0x2b')]) == _0x5c80('0x2') ? _0x5c80('0x32') : _0x5c80('0x33');
-                document[_0x5c80('0x18')]('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e')['src'] = _0x15d85b;
+            function build_player(_0x40b4b7, _0x88b673) {
+                document[_0x4524('0x16')](_0x4524('0x1c'))[_0x4524('0x1d')][_0x4524('0x1e')] = _0x4524('0x1f');
+                _0x40b4b7 = JSON['parse'](_0x40b4b7);
+                var _0x2e1e57 = _0x40b4b7[_0x4524('0x20')];
+                var _0x53c6eb = _0x40b4b7[_0x4524('0x21')];
+                var _0x2d720d = _0x40b4b7[_0x4524('0x22')];
+                var _0x44d142 = document[_0x4524('0x16')]('source1');
+                _0x44d142['setAttribute'](_0x4524('0x23'), _0x2e1e57);
+                _0x44d142[_0x4524('0x24')] = extractHostname(_0x40b4b7[_0x4524('0x20')]);
+                _0x44d142[_0x4524('0x1d')][_0x4524('0x1e')] = extractHostname(_0x40b4b7[_0x4524('0x20')]) == _0x4524('0x4') ? _0x4524('0x25') : _0x4524('0x26');
+                var _0x264fcb = document['getElementById'](_0x4524('0x27'));
+                _0x264fcb[_0x4524('0x28')]('data', _0x53c6eb);
+                _0x264fcb[_0x4524('0x24')] = extractHostname(_0x40b4b7[_0x4524('0x21')]);
+                _0x264fcb[_0x4524('0x1d')][_0x4524('0x1e')] = extractHostname(_0x40b4b7[_0x4524('0x21')]) == 'null' ? _0x4524('0x25') : _0x4524('0x26');
+                var _0x4ed3a4 = document[_0x4524('0x16')](_0x4524('0x29'));
+                _0x4ed3a4[_0x4524('0x28')]('data', _0x2d720d);
+                _0x4ed3a4[_0x4524('0x24')] = extractHostname(_0x40b4b7['alt2']);
+                _0x4ed3a4[_0x4524('0x1d')][_0x4524('0x1e')] = extractHostname(_0x40b4b7[_0x4524('0x22')]) == _0x4524('0x4') ? _0x4524('0x25') : _0x4524('0x26');
+                document[_0x4524('0x16')]('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e')[_0x4524('0x1b')] = _0x2e1e57;
             }
-            var btns = document[_0x5c80('0x35')](_0x5c80('0x36'));
-            for (var a = 0x0; a < btns[_0x5c80('0x37')]; a++) {
-                btns[a]['onclick'] = function() {
-                    var _0x1df4b4 = document[_0x5c80('0x18')]('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e');
-                    _0x1df4b4[_0x5c80('0x1e')] = this[_0x5c80('0x38')](_0x5c80('0x2e'));
+            var btns = document[_0x4524('0x2a')](_0x4524('0x2b'));
+            for (var a = 0x0; a < btns['length']; a++) {
+                btns[a][_0x4524('0x18')] = function() {
+                    var _0x4f885d = document[_0x4524('0x16')]('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e');
+                    _0x4f885d['src'] = this[_0x4524('0x2c')](_0x4524('0x23'));
                 };
             }
-            document[_0x5c80('0x18')]('downloader-info')[_0x5c80('0x1a')] = function() {
-                document[_0x5c80('0x18')]('hdn-info')[_0x5c80('0x31')]['display'] = 'block';
+            document[_0x4524('0x16')](_0x4524('0x2d'))[_0x4524('0x18')] = function() {
+                document['getElementById'](_0x4524('0x2e'))[_0x4524('0x1d')][_0x4524('0x1e')] = _0x4524('0x1f');
             };
-        </script>
+            start_player(keys);
+        </script>{% endcompress %}
 </body>
 
 </html>
