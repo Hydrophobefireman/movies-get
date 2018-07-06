@@ -1,7 +1,7 @@
 import requests
 import re
 from bs4 import BeautifulSoup as bs
-from urllib.parse import quote
+from urllib.parse import quote_plus as quote
 import ippl
 
 
@@ -30,7 +30,7 @@ def main_(term=None, s_url=None):
         u = tag.attrs.get("href")
         if u:
             yn = input("Should I add:%s ?\n" % (u)).lower()
-            if yn=='y':
+            if yn == 'y':
                 print('[info]Adding:', u)
                 print(ippl.get_(u, True))
             else:

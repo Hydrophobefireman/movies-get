@@ -40,7 +40,7 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 
 
 class movieData(db.Model):
-    mid = db.Column(db.Integer, primary_key=True)
+    mid = db.Column(db.String, primary_key=True)
     movie = db.Column(db.String(100))
     moviedisplay = db.Column(db.String(100))
     url = db.Column(db.String(1000))
@@ -49,6 +49,8 @@ class movieData(db.Model):
     thumb = db.Column(db.String(1000))
 
     def __init__(self, movie, url, alt1, alt2, thumb):
+        self.mid = self.generate_id()
+
         self.movie = re.sub(r"\s", "", movie).lower()
         self.moviedisplay = movie
         self.url = str(url).replace("http://", "https://")
@@ -58,6 +60,16 @@ class movieData(db.Model):
 
     def __repr__(self):
         return '<Name %r>' % self.movie
+
+    def generate_id(self):
+        lst_ = list(base64.b64encode((str(uuid.uuid1())[:gen_rn()]+str(uuid.uuid4(
+        ))[:gen_rn()]+uuid.uuid4().hex[:gen_rn()]).encode()).decode().replace("=", '--'))
+        random.shuffle(lst_)
+        return ''.join(lst_)[:17]
+
+
+def gen_rn():
+    return random.randint(2, 7)
 
 
 class movieRequests(db.Model):
@@ -168,7 +180,7 @@ def favicon():
 
 @app.route("/movie/<mid>/<mdata>/")
 def send_movie(mid, mdata):
-    if not mid.isdigit():
+    if not mid:
         return "Nope"
     meta_ = movieData.query.filter_by(mid=int(mid)).first()
     movie_name = meta_.moviedisplay
@@ -234,14 +246,17 @@ def ble():
 
 @app.route("/sec/add/", methods=['POST'])
 def add_():
-    data = request.form['data']
-    if request.form['pw'] != os.environ.get("_pass_"):
-        return "No"
-    data = json.loads(data)
-    col = movieData(*data['lists'])
-    db.session.add(col)
-    db.session.commit()
-    return str(col)
+    try:
+        data = request.form['data']
+        if request.form['pw'] != os.environ.get("_pass_"):
+            return "No"
+        data = json.loads(data)
+        col = movieData(*data['lists'])
+        db.session.add(col)
+        db.session.commit()
+        return str(col)
+    except:
+        return "Malformed Input"
 
 
 @app.route("/out")
