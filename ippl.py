@@ -73,6 +73,9 @@ def get_(url, v=True):
         dt_n = input(
             "[info]Enter the number of the url to remove from the List:")
         data.pop(int(dt_n)-1)
+    if len(data) < 3:
+        nones = [None]*(3-len(data))
+        data += nones
     data_dict = {"title": title, "thumbnail": image, "urls": data}
     db_m_tuple = (data_dict['title'], *
                   data_dict['urls'], data_dict['thumbnail'])

@@ -51,9 +51,9 @@ class movieData(db.Model):
     def __init__(self, movie, url, alt1, alt2, thumb):
         self.movie = re.sub(r"\s", "", movie).lower()
         self.moviedisplay = movie
-        self.url = url.replace("http://", "https://")
-        self.alt1 = alt1.replace("http://", "https://")
-        self.alt2 = alt2.replace("http://", "https://")
+        self.url = str(url).replace("http://", "https://")
+        self.alt1 = str(alt1).replace("http://", "https://")
+        self.alt2 = str(alt2).replace("http://", "https://")
         self.thumb = thumb
 
     def __repr__(self):
@@ -230,6 +230,18 @@ def ble():
         else:
             ret.append(url)
     return html_minify(render_template("movies-google.html", data=json.dumps(ret)))
+
+
+@app.route("/sec/add/", methods=['POST'])
+def add_():
+    data = request.form['data']
+    if request.form['pw'] != os.environ.get("_pass_"):
+        return "No"
+    data = json.loads(data)
+    col = movieData(*data['lists'])
+    db.session.add(col)
+    db.session.commit()
+    return str(col)
 
 
 @app.route("/out")
