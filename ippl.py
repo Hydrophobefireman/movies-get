@@ -44,13 +44,13 @@ def get_(url, v=True):
         to_send = t.attrs
         to_screen(["[debug]Found Configs:", t.attrs], v)
         to_screen(["[debug]Sleeping for 2 seconds"], v)
-        sleep(2)
+        sleep(1)
         to_screen(["\n[debug]Making a post request"], v)
         a = sess.post(host+"ip.file/swf/plugins/ipplugins.php", headers=basic_headers, data={
                       "ipplugins": 1, "ip_film": to_send["data-film"], "ip_server": to_send["data-server"], "ip_name": to_send["data-name"], "fix": 'null'})
         b = json.loads(a.text)
         to_screen(["[debug]Sleeping for 2 seconds"], v)
-        sleep(2)
+        sleep(1)
         to_screen(["[debug]Recieved:", b], v)
         ret = sess.post(host+"ip.file/swf/ipplayer/ipplayer.php", cookies=page.cookies, headers=basic_headers,
                         data={"u": b["s"], "w": "100%25", "h": "500", "s": to_send["data-server"], 'n': '0'})

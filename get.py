@@ -62,10 +62,10 @@ class movieData(db.Model):
         return '<Name %r>' % self.movie
 
     def generate_id(self):
-        lst_ = list(base64.b64encode((str(uuid.uuid1())[:gen_rn()]+str(uuid.uuid4(
-        ))[:gen_rn()]+uuid.uuid4().hex[:gen_rn()]).encode()).decode().replace("=", '--'))
+        lst_ = list(base64.urlsafe_b64encode((str(uuid.uuid1())[:gen_rn()]+str(uuid.uuid4(
+        ))[:gen_rn()]+uuid.uuid4().hex[:gen_rn()]+str(random.randint(100, 1000000))[6:]).encode()).decode().replace("=", '--'))
         random.shuffle(lst_)
-        return ''.join(lst_)[:17]
+        return ''.join(lst_)[:18]
 
 
 def gen_rn():
@@ -180,9 +180,9 @@ def favicon():
 
 @app.route("/movie/<mid>/<mdata>/")
 def send_movie(mid, mdata):
-    if not mid:
+    if mid is None:
         return "Nope"
-    meta_ = movieData.query.filter_by(mid=int(mid)).first()
+    meta_ = movieData.query.filter_by(mid=mid).first()
     movie_name = meta_.moviedisplay
     thumbnail = meta_.thumb
     r_n = random.randint(4, 25)
@@ -195,7 +195,7 @@ def plugin():
     mid = request.form['id']
     if request.form['nonce'] != session['req_nonce']:
         return "Lol"
-    data = movieData.query.filter_by(mid=int(mid)).first()
+    data = movieData.query.filter_by(mid=mid).first()
     json_data = {"url": data.url, "alt1": data.alt1, "alt2": data.alt2}
     return json.dumps(json_data)
 
