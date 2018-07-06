@@ -24,6 +24,8 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+#MinifiedJS
+static/jsbin/
 #CUSTOM
 js-obfs.js
 js-player.obfs.js
