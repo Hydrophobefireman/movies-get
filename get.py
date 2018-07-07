@@ -115,9 +115,9 @@ def https():
         return redirect(request.url.replace("http://", "https://"), code=301)
 
 
-@app.route("/scr/")
+@app.route("/robots.txt")
 def check__():
-    return redirect("/")
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'robots.txt', mimetype='text/plain')
 
 
 @app.route("/")
