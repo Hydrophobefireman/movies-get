@@ -2,7 +2,8 @@ import base64
 import json
 import os
 import random
-import re,time
+import re
+import time
 import uuid
 from urllib.parse import quote, unquote
 
@@ -25,7 +26,7 @@ app.config['COMPRESSOR_DEBUG'] = app.config.get('DEBUG')
 app.config['COMPRESSOR_OUTPUT_DIR'] = './static/jsbin'
 app.config['COMPRESSOR_STATIC_PREFIX'] = '/static/jsbin/'
 jac = JAC(app)
-app.secret_key = "s_e6c@td:"
+app.secret_key = "H(|hGh<;e"
 dburl = os.environ.get('DATABASE_URL')
 
 try:

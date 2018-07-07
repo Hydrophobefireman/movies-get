@@ -1,1 +1,1 @@
-web: gunicorn get:app -w 3 --threads 3 --timeout 500 
+web: gunicorn get:app -w 4 --threads 3 --timeout 500 
