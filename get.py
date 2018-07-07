@@ -2,7 +2,7 @@ import base64
 import json
 import os
 import random
-import re
+import re,time
 import uuid
 from urllib.parse import quote, unquote
 
@@ -11,6 +11,7 @@ import requests
 from bs4 import BeautifulSoup as bs
 from flask import (Flask, redirect, render_template, request,
                    send_from_directory, session, url_for)
+from flask_compress import Compress
 from flask_sqlalchemy import SQLAlchemy
 from htmlmin.minify import html_minify
 from jac.contrib.flask import JAC
@@ -19,11 +20,12 @@ import streamsites as st
 from dbmanage import req_db
 
 app = Flask(__name__)
+Compress(app)
 app.config['COMPRESSOR_DEBUG'] = app.config.get('DEBUG')
 app.config['COMPRESSOR_OUTPUT_DIR'] = './static/jsbin'
 app.config['COMPRESSOR_STATIC_PREFIX'] = '/static/jsbin/'
 jac = JAC(app)
-app.secret_key = "S9(c#d4"
+app.secret_key = "s_e6c@td:"
 dburl = os.environ.get('DATABASE_URL')
 
 try:
@@ -61,14 +63,14 @@ class movieData(db.Model):
         return '<Name %r>' % self.movie
 
     def generate_id(self):
-        lst_ = list(base64.urlsafe_b64encode((str(uuid.uuid1())[:gen_rn()]+str(uuid.uuid4(
-        ))[:gen_rn()]+uuid.uuid4().hex[:gen_rn()]+str(random.randint(100, 1000000))[6:]).encode()).decode().replace("=", '--'))
+        lst_ = list(base64.urlsafe_b64encode((str(uuid.uuid1())+str(uuid.uuid4(
+        ))+uuid.uuid4().hex+str(time.time())).encode()).decode().replace("=", '--'))
         random.shuffle(lst_)
-        return ''.join(lst_)[:18]
+        return ''.join(lst_)[:gen_rn()]
 
 
 def gen_rn():
-    return random.randint(2, 7)
+    return random.randint(5, 17)
 
 
 class movieRequests(db.Model):
