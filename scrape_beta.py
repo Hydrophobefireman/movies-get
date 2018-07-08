@@ -3,11 +3,13 @@ import json
 import requests
 import ippl
 from bs4 import BeautifulSoup as bs
+from urllib.parse import urlparse
 from warnings import warn
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
 
 
 def scrape(url):
+    base_url = url
     warn("Some Go Movies url need a /watching.html in the end. Remember to add it if needed")
     req = requests.get(url, headers={"User-Agent": USER_AGENT})
     page = req.text
@@ -23,17 +25,20 @@ def scrape(url):
             dv += data
     if dv:
         return dv
-    else:
-        url = re.search(r"var\s*locations\s?=\s?.*?(?<=;)",
-                        url, re.IGNORECASE)
-        if url:
-            return [url.group()]
-        urls = iframe_src_or_none(soup)
-        if urls:
-            return urls
-        ippl_try = try_ipplayer_search(url)
-        if ippl_try:
-            return ippl_try
+    url = re.search(r"var\s*locations\s?=\s?.*?(?<=;)",
+                    url, re.IGNORECASE)
+    if url:
+        return [url.group()]
+    urls = iframe_src_or_none(soup)
+    if urls:
+        return urls
+    ippl_try = try_ipplayer_search(url)
+    if ippl_try:
+        return ippl_try
+    regs = re.search(r"id:\s?\"(?P<id>.*?)\"", page)
+    if regs:
+        v_id = regs.group('id')
+        return try_get_ajax(base_url, v_id)
 
 
 def try_ipplayer_search(url):
@@ -41,6 +46,42 @@ def try_ipplayer_search(url):
         return ippl.get_(url, v=True)
     except:
         return None
+
+
+def try_get_ajax(url, id_):
+    parsed_url = urlparse(url)
+    host = "http://"+parsed_url.netloc+"/"
+    url1 = host+"ajax/movie_episodes/"+id_
+    basic_headers = {
+        "User-Agent": USER_AGENT,
+        "Upgrade-Insecure-Requests": "1",
+        "dnt": '1',
+        "referer": url,
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
+    }
+    data = requests.Session().get(url1, headers=basic_headers).text
+    print("[debug]Recieved Data of length:", len(data))
+    htm = json.loads(data)['html']
+    soup = bs(htm, 'html.parser')
+    srcs = []
+    divs = soup.findAll('a', attrs={"data-id": True})
+    for div in divs:
+        d_id = div.attrs.get("data-id")
+        url_2 = host+"ajax/movie_embed/"+d_id
+        print("[debug]Requesting:", url_2)
+        try:
+            txt = json.loads(requests.Session().get(
+                url_2, headers=basic_headers).text)
+            print("[debug]Recieved:", txt)
+            if str(txt['status']) == '1':
+                srcs.append(txt['src'])
+        except Exception as e:
+            print(e)
+            #raise e
+            continue
+    if len(srcs) == 0:
+        return None
+    return srcs
 
 
 def les_content_parser(div):

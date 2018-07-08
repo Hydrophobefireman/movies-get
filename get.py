@@ -65,7 +65,7 @@ class movieData(db.Model):
 
     def generate_id(self):
         lst_ = list(base64.urlsafe_b64encode((str(uuid.uuid1())+str(uuid.uuid4(
-        ))+uuid.uuid4().hex+str(time.time())).encode()).decode().replace("=", '--'))
+        ))+uuid.uuid4().hex+str(time.time())).encode()).decode().replace("=", '- -'))
         random.shuffle(lst_)
         return ''.join(lst_)[:gen_rn()]
 
@@ -87,26 +87,17 @@ class movieRequests(db.Model):
         return '<Name %r>' % self.movie
 
 
-def urlcheck(url):
-    print(url)
-    if re.search(r"(https?:)?//.*\.?((docs|drive)\.google.com)|video\.google\.com", url, re.IGNORECASE) is not None:
-        return True
-    elif re.search(r"(https?:)?//.*\.?estream", url, re.IGNORECASE) is not None:
-        return True
-    elif re.search(r"(https?:)?//.*\.?vidzi\.", url, re.IGNORECASE) is not None:
-        return True
-    elif re.search(r"(https?:)?//.*\.?yourupload\.", url, re.IGNORECASE) is not None:
-        return True
-    elif re.search(r"(https?:)?//.*\.?watcheng\.", url, re.IGNORECASE) is not None:
-        return True
-    elif re.search(r"https?://.*?coolseries\.", url, re.IGNORECASE) is not None:
-        return True
-    elif re.search(r"https?://.*?(chillingeffects|lumendatabase)\.org", url, re.IGNORECASE) is not None:
-        return True
-    elif re.search(r"https?://.*?oload|https?://openload|https?://.*?daclips|https?://.*?thevideo|https?://.*?vev.io|https?://.*?streamango|https?://.*?streamago|https?://.*?streamcloud", url, re.IGNORECASE) is not None:
-        return True
-    else:
-        return False
+class deadLinks(db.Model):
+    r_id = db.Column(db.Integer, primary_key=True)
+    movieid = db.Column(db.String(100))
+    name = db.Column(db.String(1000))
+
+    def __init__(self, movie_id, name=None):
+        self.movieid = movie_id
+        self.name = name
+
+    def __repr__(self):
+        return '<Name %r>' % self.movieid
 
 
 @app.before_request
@@ -127,6 +118,32 @@ def index():
     else:
         d = " "
     return html_minify(render_template("index.html", msg=d))
+
+
+@app.route("/report/")
+def report_dead():
+    m_id = request.args.get("id")
+    if m_id is None:
+        return "No movie id specified"
+    meta_ = movieData.query.filter_by(mid=m_id).first()
+    if meta_ is None:
+        return "No movie associated with given id"
+    thumb = meta_.thumb
+    title = meta_.moviedisplay
+    return render_template("link-report.html", m_id=m_id, title=title, thumb=thumb)
+
+
+@app.route("/submit/report/", methods=['POST'])
+def parse_report():
+    try:
+        mid = request.form['id']
+        col = deadLinks(mid)
+        db.session.add(col)
+        db.session.commit()
+        return "Response recorded.Thank You for your help!"
+    except Exception as e:
+        return "An unknown error occured during processing your request"
+       # raise e
 
 
 @app.route("/search")
@@ -185,6 +202,8 @@ def send_movie(mid, mdata):
     if mid is None:
         return "Nope"
     meta_ = movieData.query.filter_by(mid=mid).first()
+    if meta_ is None:
+        return "No movie associated with given id"
     movie_name = meta_.moviedisplay
     thumbnail = meta_.thumb
     r_n = random.randint(4, 25)
@@ -205,45 +224,6 @@ def plugin():
 @app.route("/no-result/")
 def b404():
     return html_minify(render_template("no-result.html"))
-
-
-@app.route("/data/imagebin/<path:url>/")
-def redirtoimg(url):
-    return redirect(unquote(url), code=301)
-
-
-@app.route("/search/g/")
-def ble():
-    raise NotImplementedError("Nah")
-    q = request.args.get("q")
-    q = "watch "+q
-    url = "https://google.com/search?q="+quote(q)
-    print(url)
-    data = requests.get(url, headers={'User-Agent': USER_AGENT}).text
-    print("connected")
-    regex = r"((?<=href=\").*?(?=\"))"
-    js_data = []
-    link_list = [s for s in re.findall(regex, data) if s.startswith(
-        "http") and ".google" not in s and "youtube.com/?gl=" not in s and "www.blogger.com/?tab=wj" not in s
-        and ".bing" not in s and ".microsoft" not in s]
-    fl = [s for s in link_list if urlcheck(s)]
-    for t in fl:
-        if re.search(r"https?://.*?(chillingeffects|lumendatabase)\.org", t, re.IGNORECASE) is not None:
-            r = requests.get(t, headers={"User-Agent": USER_AGENT}).text
-            soup = bs(r, 'html.parser')
-            urls = [s.text for s in soup.find_all(
-                "li", attrs={"class", "infringing_url"})]
-            js_data += urls
-    js_data = list(set(js_data))
-    js_data = [s for s in js_data if urlcheck(s)]
-    ret = []
-    for url in js_data:
-        sites = st.check_for_stream_sites(url, USER_AGENT)
-        if sites:
-            ret += sites
-        else:
-            ret.append(url)
-    return html_minify(render_template("movies-google.html", data=json.dumps(ret)))
 
 
 @app.route("/sec/add/", methods=['POST'])

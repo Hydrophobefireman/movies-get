@@ -1,0 +1,87 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <meta name="keywords" content="report,movies" />
+    <meta name='og:description' content="report dead links for {{title}}" />
+    <meta name='description' content="report dead links for {{title}}" />
+    <meta name='og:image' content="{{thumb|safe}}" />
+    <meta name='og:title' content="report dead links for {{title}}" />
+    <meta name='og:site_name' content="movies-get" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+    <title>report dead links for {{title}}</title>
+    <style>
+        .submit-button {
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            border-radius: 5px;
+            padding: 8px;
+            border: none;
+            outline: none;
+            background: #3367d6;
+            color: white;
+            text-transform: uppercase;
+            cursor: pointer;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div style='margin-left: auto;margin-right: auto;text-align: center;'>
+        <div>
+            <div id=report-box></div>
+            <button class=submit-button id=sbmit-report style=margin-top:15px;>Submit Report</button>
+            <div id=sub-success-error style=margin:20px;>
+
+            </div> {% compress 'js' %}
+            <script>
+                var repo = document.getElementById("report-box");
+                var xhr = new XMLHttpRequest();
+                xhr.open("GET", "{{thumb|safe}}", true);
+                xhr["responseType"] = "bl" + "ob";
+                var img = document.createElement("img");
+                xhr.onload = function() {
+                    blob = new Blob([this.response], {
+                        type: "image/jpg"
+                    })
+                    var compat_url = window["URL"] || window["webkitURL"];
+                    var url = compat_url.createObjectURL(blob);
+                    img.src = url;
+                    img.onload = function() {
+                        window.URL.revokeObjectURL(this.src);
+                    }
+                }
+                xhr.send();
+                repo.appendChild(img);
+                var repo = document.getElementById("report-box")
+                repo.appendChild(img);
+                var txtel = document.createElement("div");
+                txtel.innerHTML = "Report for movie {{title}}?"
+                repo.appendChild(txtel);
+
+                document.getElementById("sbmit-report").onclick = function() {
+                    var xhr2 = new XMLHttpRequest();
+                    params = encodeURI("id={{m_id|safe}}");
+                    xhr2.open("POST", "/submit/report/", true);
+                    xhr2.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                    xhr2.onload = function() {
+                        document.getElementById("sub-success-error").innerHTML = this.response;
+                    }
+                    xhr2.send(params);
+                }
+            </script>{% endcompress %}
+        </div>
+
+    </div>
+</body>
+
+</html>
