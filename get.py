@@ -11,7 +11,7 @@ import psycopg2
 import requests
 from bs4 import BeautifulSoup as bs
 from flask import (Flask, redirect, render_template, request,
-                   send_from_directory, session, url_for)
+                   send_from_directory, session, url_for, make_response)
 from flask_compress import Compress
 from flask_sqlalchemy import SQLAlchemy
 from htmlmin.minify import html_minify
@@ -142,6 +142,7 @@ def parse_report():
         db.session.commit()
         return "Response recorded.Thank You for your help!"
     except Exception as e:
+        print(e)
         return "An unknown error occured during processing your request"
        # raise e
 
