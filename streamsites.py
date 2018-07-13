@@ -184,7 +184,7 @@ def cool_series(url, ua):
         hts = bs(requests.get(url, headers={
             "User-Agent": ua, "Referer": url, "accept-language": "en-GB,en-US;q=0.9,en;q=0.8"}).text, "html.parser")
         iframeurl = hts.findAll("iframe")[0].attrs['src']
-        if urlcheck(iframeurl)
+        if urlcheck(iframeurl):
             g_urls.append(iframeurl)
     return g_urls
 
