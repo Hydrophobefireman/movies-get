@@ -4,6 +4,7 @@ import requests
 import ippl
 from bs4 import BeautifulSoup as bs
 from urllib.parse import urlparse
+import streamsites
 from warnings import warn
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
 
@@ -39,6 +40,9 @@ def scrape(url):
     if regs:
         v_id = regs.group('id')
         return try_get_ajax(base_url, v_id)
+    else:
+        try:
+            return streamsites.check_for_stream_sites(base_url, USER_AGENT)
 
 
 def try_ipplayer_search(url):

@@ -3,6 +3,7 @@ import re
 from urllib.parse import urlparse
 
 import requests
+import base64
 from bs4 import BeautifulSoup as bs
 
 
@@ -19,16 +20,18 @@ def check_for_stream_sites(url, ua):
             data = tvzion(url, ua)
         if re.search(r"https?://.*?putlocker", url) is not None:
             print("try")
-            data = putlocker(url, ua)
+            data = list(
+                set([s for s in putlocker(url, ua) if urlcheck(s)]))
         return data
     else:
-        # if down.urlcheck(url)[0]:  # Not a streaming site
+        # if urlcheck(url)[0]:  # Not a streaming site
         return False
 
 
 def putlocker(url, ua):
     source = requests.get(url, headers={"User-Agent": ua}).text
     # too many rip off sites..gotta support some of em
+    ret = source
 
     def searches(url, source):
         try:
@@ -56,24 +59,62 @@ def putlocker(url, ua):
             res = [s for s in re.findall(
                 r'(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+', source) if "http" in s]
             print(len(res))
-            data = [s for s in res if down.urlcheck(s)[0]]
+            data = [s for s in res if urlcheck(s)[0]]
             print(data)
             return data
         except Exception as e:
             return False
         # looks terrible but there are a few 100 putlocker domains around this supports most of them except one
     res = searches(url, source)
-    if not res:
+    print(res)
+    if len(res) == 0 or res is False:
         try:
             parsed_url = urlparse(url)
             base_url_check = parsed_url.scheme+"://"+parsed_url.netloc+"/tmp_chk.php"
             requests.post(base_url_check, data={"tst": parsed_url.netloc})
             source = requests.post(url, data={"tmp_chk": 1}).text
             res = searches(url, source)
-            return res
+            if len(res) == 0 or res is False:
+                raise Exception("No Data")
         except Exception as e:
-            print(e)
-            return False
+            try:
+                print("B64")
+                decoded_links = []
+                print(e)
+
+                def b64decoder(decoded_links, source):
+                    print("b64decoder")
+                    reg = re.search(
+                        r"base64.decode\((\"|')(?P<id>.*?)(\"|')\)", source, re.IGNORECASE)
+                    if reg:
+                        reg = base64.b64decode(
+                            reg.group("id").encode()).decode()
+                        reg = re.search(
+                            r'(?:(?:https?|ftp)?:\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+', reg).group()
+
+                        decoded_links.append(reg)
+                b64decoder(decoded_links, source)
+                soup = bs(ret, 'html.parser')
+                ptags = soup.find_all("p", attrs={"class": "server_play"})
+                links = []
+                if len(ptags) > 0:
+                    print('PTAGS', ptags)
+                    ptags = ptags[:10]
+                    for p in ptags:
+                        atag = p.findChild("a")
+                        print(atag)
+                        if atag:
+                            links.append(atag.attrs.get("href"))
+                print(links)
+                for l in links:
+                    if l:
+                        page = requests.get(l, headers={"User-Agent": ua}).text
+                        b64decoder(decoded_links, page)
+                if len(decoded_links) > 0:
+                    return decoded_links
+                return False
+            except Exception as e:
+                return False
     return res
 
 
@@ -86,9 +127,9 @@ def tvzion(url, ua):
     videoreg = r"((?<=rel=\"video_src\"href=\").*?(?=\"))"
     video = re.findall(videoreg, source)
     sess = requests.Session()
-    video = sess.get(
+    video = sess.head(
         video[0], headers={"User-Agent": ua, "Referer": url}, allow_redirects=True).url
-    if any(a in video for a in down.working_sites):
+    if urlcheck(video):
         data.append(video)
         return data
     else:
@@ -104,7 +145,7 @@ def watchseries(url, ua):  # general extractor
             u = get_final_url(u, ua, url)
             if u:
                 data += u  # we need one list only
-        elif any(a in u for a in down.working_sites):
+        if urlcheck(u)
             data.append(u)
     return data
 
@@ -119,7 +160,7 @@ def get_final_url(u, ua, url):
         if extract_host(u) != hosts:
             if u.startswith("//"):
                 u = "http:"+u
-            if down.urlcheck(u)[0]:
+            if urlcheck(u)[0]:
                 data.append(u)
     return data
 
@@ -143,6 +184,31 @@ def cool_series(url, ua):
         hts = bs(requests.get(url, headers={
             "User-Agent": ua, "Referer": url, "accept-language": "en-GB,en-US;q=0.9,en;q=0.8"}).text, "html.parser")
         iframeurl = hts.findAll("iframe")[0].attrs['src']
-        if any(a in iframeurl for a in down.working_sites):
+        if urlcheck(iframeurl)
             g_urls.append(iframeurl)
     return g_urls
+
+
+def urlcheck(url):
+    if re.search(r"^(https?:)?//.*\.?((docs|drive)\.google.com)|video\.google\.com", url, re.IGNORECASE) is not None:
+        return True
+    if re.search(r"^(https?:)?//.*\.?(photos\.google|photos\.app\.goo\.gl)", url, re.IGNORECASE) is not None:
+        return True
+    if re.search(r"^(https?:)?//.*\.?estream", url, re.IGNORECASE) is not None:
+        return True
+    if re.search(r"^(https?:)?//.*\.?vidzi\.", url, re.IGNORECASE) is not None:
+        return True
+    if re.search(r"^(https?:)?//.*\.?yourupload\.", url, re.IGNORECASE) is not None:
+        return True
+    if re.search(r"^(https?:)?//.*\.?dailymotion\.", url, re.IGNORECASE) is not None:
+        return True
+    if re.search(r"^(https?:)?//.*\.?watcheng\.", url, re.IGNORECASE) is not None:
+        return True
+    if re.search(r"^(https?:)?//.*\.?rapidvideo\.", url, re.IGNORECASE) is not None:
+        return True
+    if re.search(r"^(https?:)?//.*\.?megadrive\.", url, re.IGNORECASE) is not None:
+        return True
+    if re.search(r"^(https?:)?//(.{3})?\.?(oload|openload|daclips|thevideo|vev.io|streamango|streamago|streamcloud)", url, re.IGNORECASE) is not None:
+        return True
+    else:
+        return False
