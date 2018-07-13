@@ -145,7 +145,7 @@ def watchseries(url, ua):  # general extractor
             u = get_final_url(u, ua, url)
             if u:
                 data += u  # we need one list only
-        if urlcheck(u)
+        if urlcheck(u):
             data.append(u)
     return data
 
@@ -160,7 +160,7 @@ def get_final_url(u, ua, url):
         if extract_host(u) != hosts:
             if u.startswith("//"):
                 u = "http:"+u
-            if urlcheck(u)[0]:
+            if urlcheck(u):
                 data.append(u)
     return data
 
