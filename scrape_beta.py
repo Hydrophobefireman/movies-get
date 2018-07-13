@@ -12,7 +12,8 @@ import streamsites
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
 
-"""" Supports almost all movie streaming sites..
+"""" 
+Supports almost all movie streaming sites..
 ::the ones that use ipplayer
  see:
  http://www3.solarmoviesc.com/ip.file/swf/ipplayer/ipplayer.js
@@ -125,7 +126,6 @@ def les_content_parser(div):
         return valid_urls
     else:
         return None
-
 
 def urlcheck(url):
     if re.search(r"^(https?:)?//.*\.?((docs|drive)\.google.com)|video\.google\.com", url, re.IGNORECASE) is not None:
