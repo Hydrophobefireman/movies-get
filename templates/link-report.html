@@ -48,6 +48,8 @@
                 var compat_url = window["URL"] || window["webkitURL"];
                 var req = new Request("{{thumb|safe}}");
                 var img = document.createElement("img");
+                img.style.height = '200px';
+                img.style.width = '150px;'
                 fetch(req)
                     .then(response => response.blob())
                     .then(blob => {
