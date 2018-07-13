@@ -1,12 +1,29 @@
-import re
+import base64
 import json
-import requests
-import ippl
-from bs4 import BeautifulSoup as bs
+import re
 from urllib.parse import urlparse
-import streamsites
 from warnings import warn
+import traceback
+import requests
+from bs4 import BeautifulSoup as bs
+
+import ippl
+import streamsites
+
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
+
+"""" Supports almost all movie streaming sites..
+::the ones that use ipplayer
+ see:
+ http://www3.solarmoviesc.com/ip.file/swf/ipplayer/ipplayer.js
+ http://www3.solarmoviesc.com/ip.file/swf/ipplayer/ipplayer.core.js
+the ones that use kizy player
+http://solarmoviesc.co/$MOVIE-NAME/?action=watching
+"Base64" players 
+see:
+http://solarmovie.net/watch/zdKn41G1-superfly.html
+
+"""
 
 
 def scrape(url):
@@ -33,16 +50,27 @@ def scrape(url):
     urls = iframe_src_or_none(soup)
     if urls:
         return urls
-    ippl_try = try_ipplayer_search(url)
+    ippl_try = try_ipplayer_search(base_url)
     if ippl_try:
         return ippl_try
     regs = re.search(r"id:\s?\"(?P<id>.*?)\"", page)
     if regs:
         v_id = regs.group('id')
-        return try_get_ajax(base_url, v_id)
+        data_r = try_get_ajax(base_url, v_id)
+        if data_r:
+            print(data_r)
+            return data_r
     else:
+        data__ = None
         try:
-            return streamsites.check_for_stream_sites(base_url, USER_AGENT)
+            data__ = streamsites.check_for_stream_sites(base_url, USER_AGENT)
+            if data__:
+                return data__
+        except:
+            pass
+        data = b64_try(page)
+        if data:
+            return data
 
 
 def try_ipplayer_search(url):
@@ -81,7 +109,7 @@ def try_get_ajax(url, id_):
                 srcs.append(txt['src'])
         except Exception as e:
             print(e)
-            #raise e
+            # raise e
             continue
     if len(srcs) == 0:
         return None
@@ -152,6 +180,46 @@ def iframe_src_or_none(page):
                     data.append(re.search(reg, r).group())
                 return data
     return None
+
+
+def b64_try(source):
+    ret = source
+
+    def b64decoder(decoded_links, source):
+        print("b64decoder")
+        reg = re.search(
+            r"base64.decode\((\"|')(?P<id>.*?)(\"|')\)", source, re.IGNORECASE)
+        if reg:
+            reg = base64.b64decode(
+                reg.group("id").encode()).decode()
+            reg = re.search(
+                r'(?:(?:https?|ftp)?:\/\/)?[\w/\-?=%.]+\.[\w/\-?=%.]+', reg).group()
+            decoded_links.append(reg)
+    try:
+        decoded_links = []
+        b64decoder(decoded_links, source)
+        soup = bs(ret, 'html.parser')
+        ptags = soup.find_all("p", attrs={"class": "server_play"})
+        links = []
+        if len(ptags) > 0:
+            print('PTAGS', ptags)
+            ptags = ptags[:10]
+            for p in ptags:
+                atag = p.findChild("a")
+                print(atag)
+                if atag:
+                    links.append(atag.attrs.get("href"))
+        print(links)
+        for l in links:
+            if l:
+                page = requests.get(l, headers={"User-Agent": USER_AGENT}).text
+                b64decoder(decoded_links, page)
+        if len(decoded_links) > 0:
+            return [s for s in decoded_links if urlcheck(s)]
+        return False
+    except Exception as e:
+        traceback.print_tb(e.__traceback__)
+        return False
 
 
 if __name__ == '__main__':

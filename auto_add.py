@@ -9,8 +9,7 @@ def main_(term=None, s_url=None):
     if s_url is None:
         if term is None:
             return "No term Supplied"
-        url = "https://www2.solarmoviesc.com/search/{}.html".format(
-            quote(term))
+        url = "https://www3.solarmoviesc.com/search/%s.html" % (quote(term))
     else:
         url = s_url
     ua = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
