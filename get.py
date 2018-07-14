@@ -189,7 +189,7 @@ def serchs():
         json_data['movies'].append(
             {"movie": url.moviedisplay, 'id': url.mid, "thumb": url.thumb})
     if len(json_data['movies']) == 0:
-        return json.dumps({'redirect': '/no-result'})
+        return json.dumps({'no-res': True})
     return json.dumps(json_data)
 
 
