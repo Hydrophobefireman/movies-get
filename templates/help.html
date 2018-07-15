@@ -32,6 +32,11 @@
             margin-top: 20px;
         }
         
+        .links {
+            text-decoration: none;
+            color: #fff
+        }
+        
         input,
         textarea,
         button {
@@ -119,10 +124,20 @@
             user-select: none;
             margin-top: 20px;
         }
+        
+        .links:hover {
+            border-bottom: 1px solid #e3e3e3;
+        }
     </style>
 </head>
 
 <body>
+    <div>
+        <div style="margin-left:auto;margin-right:auto;padding: 8px;overflow: hidden;background: #333;text-align: center">
+            <a class=links href='/'><span class='h-link'>Home Page</span></a>
+            <a class=links id='all' href=/all><span class='h-link'>All Movies</span></a>
+        </div>
+    </div>
     <div class=center_stuff>
         <div id=main>
             <div class=form-dats style=margin-top:40px;>

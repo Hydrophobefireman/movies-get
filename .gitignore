@@ -30,6 +30,7 @@ static/jsbin/
 js-obfs.js
 js-player.obfs.js
 js-obfuscated.js
+_js-obfuscated.js
 *.obfuscated
 .obfuscated
 .cloudinary

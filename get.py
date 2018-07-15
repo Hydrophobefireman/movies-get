@@ -10,7 +10,7 @@ from urllib.parse import quote, unquote
 import psycopg2
 import requests
 from bs4 import BeautifulSoup as bs
-from flask import (Flask, redirect, render_template, request,
+from flask import (Flask, redirect, render_template, request, Response,
                    send_from_directory, session, url_for, make_response)
 from flask_compress import Compress
 from flask_sqlalchemy import SQLAlchemy
@@ -52,7 +52,7 @@ class movieData(db.Model):
     thumb = db.Column(db.String(1000))
 
     def __init__(self, movie, url, alt1, alt2, thumb):
-        self.mid = self.generate_id()
+        self.mid = generate_id()
         self.movie = re.sub(r"\s", "", movie).lower()
         self.moviedisplay = movie
         self.url = str(url).replace("http://", "https://")
@@ -63,11 +63,12 @@ class movieData(db.Model):
     def __repr__(self):
         return '<Name %r>' % self.movie
 
-    def generate_id(self):
-        lst_ = list(base64.urlsafe_b64encode((str(uuid.uuid1())+str(uuid.uuid4(
-        ))+uuid.uuid4().hex+str(time.time())).encode()).decode().replace("=", '- -'))
-        random.shuffle(lst_)
-        return ''.join(lst_)[:gen_rn()]
+
+def generate_id():
+    lst_ = list(base64.urlsafe_b64encode((str(uuid.uuid1())+str(uuid.uuid4()) +
+                                          uuid.uuid4().hex+str(time.time())).encode()).decode().replace("=", '- -'))
+    random.shuffle(lst_)
+    return ''.join(lst_)[:gen_rn()]
 
 
 def gen_rn():
@@ -169,7 +170,6 @@ def get_s():
     data = (movie, url)
     a = req_db(data)
     print(a)
-    session['req-data'] = True
     return redirect("/", 301)
 
 
@@ -193,9 +193,57 @@ def serchs():
     return json.dumps(json_data)
 
 
+@app.route("/error-configs/")
+def err_configs():
+    return render_template("err.html")
+
+
 @app.route('/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/x-icon')
+
+
+@app.route("/all/", strict_slashes=False)
+def all_movies():
+    session['req-all'] = (generate_id()+generate_id())[:20]
+    return render_template("all.html", data=session['req-all'])
+
+
+@app.route("/fetch-token/configs/", methods=['POST'])
+def gen_conf():
+    data = request.form['data']
+    rns = request.form['rns']
+    if data != session['req-all']:
+        return 'lol'
+    session['req-all'] = (generate_id()+rns+generate_id())[:20]
+    return Response(json.dumps(
+        {"id": session['req-all'], "rns": rns}), content_type='application/json')
+
+
+@app.route("/data/specs/", methods=['POST'])
+def get_all():
+    json_data = {}
+    forms = request.form['q']
+    json_data['movies'] = []
+    if session['req-all'] != forms:
+        return "!cool"
+    urls = movieData.query.all()
+    for url in urls:
+        json_data['movies'].append(
+            {"movie": url.moviedisplay, 'id': url.mid, "thumb": url.thumb})
+    if len(json_data['movies']) == 0:
+        return json.dumps({'no-res': True})
+    return json.dumps(json_data)
+
+
+@app.route('/fetch-token/links/post/', methods=['POST'])
+def s_confs():
+    data = request.form['data']
+    if data != session['req-all']:
+        return "No"
+    session['req-all'] = (generate_id()+generate_id())[:20]
+    return Response(json.dumps(
+        {"id": session['req-all']}), content_type='application/json')
 
 
 @app.route("/movie/<mid>/<mdata>/")

@@ -32,12 +32,31 @@
             user-select: none;
             margin-top: 20px;
         }
+        
+        .links {
+            text-decoration: none;
+            color: #fff;
+        }
+        
+        .links:hover {
+            border-bottom: 1px solid #e3e3e3;
+        }
+        
+        body {
+            font-family: 'Open Sans', 'sans-serif';
+            margin: 0px;
+            padding: 0px;
+        }
     </style>
 </head>
 
 <body>
     <div style='margin-left: auto;margin-right: auto;text-align: center;'>
         <div>
+            <div style="margin-left:auto;margin-right:auto;padding: 8px;overflow: hidden;background: #333;text-align: center">
+                <a class=links href='/'><span class='h-link'>Home Page</span></a>
+                <a class=links id='all' href=/all><span class='h-link'>All Movies</span></a>
+            </div>
             <div id=report-box></div>
             <button class=submit-button id=sbmit-report style=margin-top:15px;>Submit Report</button>
             <div id=sub-success-error style=margin:20px;>
