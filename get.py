@@ -228,6 +228,7 @@ def get_all():
     if session['req-all'] != forms:
         return "!cool"
     urls = movieData.query.all()
+    random.shuffle(urls)
     for url in urls:
         json_data['movies'].append(
             {"movie": url.moviedisplay, 'id': url.mid, "thumb": url.thumb})
