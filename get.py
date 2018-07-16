@@ -206,7 +206,7 @@ def favicon():
 @app.route("/all/", strict_slashes=False)
 def all_movies():
     session['req-all'] = (generate_id()+generate_id())[:20]
-    return render_template("all.html", data=session['req-all'])
+    return html_minify(render_template("all.html", data=session['req-all']))
 
 
 @app.route("/fetch-token/configs/", methods=['POST'])
@@ -225,6 +225,7 @@ def get_all():
     json_data = {}
     forms = request.form['q']
     json_data['movies'] = []
+
     if session['req-all'] != forms:
         return "!cool"
     urls = movieData.query.all()

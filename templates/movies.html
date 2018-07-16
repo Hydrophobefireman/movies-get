@@ -196,61 +196,63 @@
     </div>
     {% compress 'js' %}
     <script>
-        var _0x34d7 = ["\x2F\x64\x61\x74", "\x61\x2F\x73\x65\x61\x72\x63\x68\x2F", "\x50\x4F\x53\x54", "\x61\x70\x70\x6C\x69\x63\x61\x74\x69\x6F\x6E\x2F\x78\x2D\x77\x77\x77\x2D\x66\x6F\x72\x6D\x2D\x75\x72\x6C\x65\x6E\x63\x6F\x64\x65\x64", "\x6C\x6F\x67", "\x63\x61\x74\x63\x68", "\x74\x68\x65\x6E", "\x74\x65\x78\x74", "\x64\x69\x73\x70\x6C\x61\x79", "\x73\x74\x79\x6C\x65", "\x6D\x61\x69\x6E", "\x67\x65\x74\x45\x6C\x65\x6D\x65\x6E\x74\x42\x79\x49\x64", "\x6E\x6F\x6E\x65", "\x6E\x6F\x2D\x72\x65\x73", "\x62\x6C\x6F\x63\x6B", "\x70\x61\x72\x73\x65", "\x68\x61\x73\x4F\x77\x6E\x50\x72\x6F\x70\x65\x72\x74\x79", "\x6C\x65\x6E\x67\x74\x68", "\x6D\x6F\x76\x69\x65\x73", "\x69\x6D\x67", "\x63\x72\x65\x61\x74\x65\x45\x6C\x65\x6D\x65\x6E\x74", "\x73\x72\x63", "\x2F\x73\x74\x61\x74\x69\x63", "\x2F\x6C\x6F\x61\x64\x69", "\x6E\x67\x2E\x6A\x70\x67", "\x74\x68\x75\x6D\x62", "\x64\x69\x76", "\x63\x6C\x61\x73\x73\x4E\x61\x6D\x65", "\x69\x6D\x67\x2D\x62\x6F\x78", "\x61", "\x68\x72\x65\x66", "\x2F\x6D\x6F\x76\x69\x65\x2F", "\x69\x64", "\x2F", "\x2D", "\x72\x65\x70\x6C\x61\x63\x65", "\x6D\x6F\x76\x69\x65", "\x3F\x69\x64\x3D", "\x73\x6C\x69\x63\x65", "\x72\x61\x6E\x64\x6F\x6D", "\x61\x70\x70\x65\x6E\x64\x43\x68\x69\x6C\x64", "\x64\x69\x73\x70\x6C\x61\x79\x2D\x69\x6D\x67", "\x73\x70\x61\x6E", "\x74\x65\x78\x74\x2D\x62\x6F\x78", "\x69\x6E\x6E\x65\x72\x48\x54\x4D\x4C", "\x63\x6F\x6E\x74\x65\x6E\x74", "\x55\x52\x4C", "\x77\x65\x62\x6B\x69\x74\x55\x52\x4C", "\x63\x72\x65\x61\x74\x65\x4F\x62\x6A\x65\x63\x74\x55\x52\x4C", "\x62\x6C\x6F\x62", "\x6F\x6E\x6C\x6F\x61\x64", "\x72\x65\x76\x6F\x6B\x65\x4F\x62\x6A\x65\x63\x74\x55\x52\x4C"];
-        var request = new Request(_0x34d7[0] + _0x34d7[1], {
-            method: _0x34d7[2],
+        var request = new Request("/dat" + "a/search/", {
+            method: "POST",
             headers: {
-                "\x43\x6F\x6E\x74\x65\x6E\x74\x2D\x54\x79\x70\x65": _0x34d7[3]
+                "Content-Type": "application/x-www-form-urlencoded"
             },
             body: params
         });
-        fetch(request)[_0x34d7[6]]((_0xb1ecx3) => _0xb1ecx3[_0x34d7[7]]())[_0x34d7[6]]((_0xb1ecx3) => {
-            gen_results(_0xb1ecx3)
-        })[_0x34d7[5]]((_0xb1ecx2) => {
-            console[_0x34d7[4]](_0xb1ecx2);
-            nores_()
-        });
+        fetch(request)
+            .then(response => response.text())
+            .then(response => {
+                gen_results(response);
+            }).catch(e => {
+                nores_()
+            })
 
         function nores_() {
-            document[_0x34d7[11]](_0x34d7[10])[_0x34d7[9]][_0x34d7[8]] = _0x34d7[12];
-            document[_0x34d7[11]](_0x34d7[13])[_0x34d7[9]][_0x34d7[8]] = _0x34d7[14]
+            document.getElementById("main").style.display = 'none';
+            document.getElementById("no-res").style.display = 'block';
         }
 
-        function gen_results(_0xb1ecx6) {
-            var _0xb1ecx6 = JSON[_0x34d7[15]](_0xb1ecx6);
-            if (_0xb1ecx6[_0x34d7[16]](_0x34d7[13])) {
+        function gen_results(names) {
+            var names = JSON.parse(names);
+            if (names.hasOwnProperty("no-res")) {
                 nores_()
-            };
-            var _0xb1ecx7 = 0;
-            for (; _0xb1ecx7 < _0xb1ecx6[_0x34d7[18]][_0x34d7[17]]; _0xb1ecx7++) {
-                var _0xb1ecx8 = document[_0x34d7[20]](_0x34d7[19]);
-                _0xb1ecx8[_0x34d7[21]] = _0x34d7[22] + _0x34d7[23] + _0x34d7[24];
-                gen_img(_0xb1ecx8, _0xb1ecx6[_0x34d7[18]][_0xb1ecx7][_0x34d7[25]]);
-                var _0xb1ecx9 = document[_0x34d7[20]](_0x34d7[26]);
-                _0xb1ecx9[_0x34d7[27]] = _0x34d7[28];
-                var _0xb1ecxa = document[_0x34d7[20]](_0x34d7[29]);
-                _0xb1ecxa[_0x34d7[30]] = encodeURI(_0x34d7[31] + _0xb1ecx6[_0x34d7[18]][_0xb1ecx7][_0x34d7[32]] + _0x34d7[33] + _0xb1ecx6[_0x34d7[18]][_0xb1ecx7][_0x34d7[36]][_0x34d7[35]](/(\(|\)|\s)/g, _0x34d7[34]) + _0x34d7[37] + btoa(Math[_0x34d7[39]]())[_0x34d7[38]](0, 8));
-                _0xb1ecxa[_0x34d7[40]](_0xb1ecx8);
-                _0xb1ecx9[_0x34d7[40]](_0xb1ecxa);
-                _0xb1ecx8[_0x34d7[27]] = _0x34d7[41];
-                var _0xb1ecxb = document[_0x34d7[20]](_0x34d7[42]);
-                _0xb1ecxb[_0x34d7[27]] = _0x34d7[43];
-                _0xb1ecxb[_0x34d7[44]] = _0xb1ecx6[_0x34d7[18]][_0xb1ecx7][_0x34d7[36]];
-                _0xb1ecx9[_0x34d7[40]](_0xb1ecxb);
-                document[_0x34d7[11]](_0x34d7[45])[_0x34d7[40]](_0xb1ecx9)
+            }
+            var i = 0;
+            for (; i < names["movies"]["length"]; i++) {
+                var img = document.createElement("img");
+                img["src"] = "/static" + "/loadi" + "ng.jpg";
+                gen_img(img, names["movies"][i]["thumb"]);
+                var dv = document.createElement("div");
+                dv["className"] = "img-box";
+                var atag = document.createElement("a");
+                atag["href"] = encodeURI("/movie/" + names["movies"][i]["id"] + "/" + names["movies"][i]["movie"].replace(/(\(|\)|\s)/g, "-") + "?id=" + btoa(Math.random()).slice(0, 8));
+                atag.appendChild(img);
+                dv.appendChild(atag);
+                img.className = 'display-img';
+                var sp = document.createElement("span");
+                sp["className"] = "text-box";
+                sp["innerHTML"] = names["movies"][i]["movie"];
+                dv.appendChild(sp);
+                document.getElementById("content").appendChild(dv);
             }
         }
 
-        function gen_img(_0xb1ecx8, _0xb1ecxd) {
-            var _0xb1ecxe = window[_0x34d7[46]] || window[_0x34d7[47]];
-            var _0xb1ecxf = new Request(_0xb1ecxd);
-            fetch(_0xb1ecxf)[_0x34d7[6]]((_0xb1ecx3) => _0xb1ecx3[_0x34d7[49]]())[_0x34d7[6]]((_0xb1ecx10) => {
-                _0xb1ecx8[_0x34d7[21]] = _0xb1ecxe[_0x34d7[48]](_0xb1ecx10)
-            });
-            _0xb1ecx8[_0x34d7[50]] = function() {
-                _0xb1ecxe[_0x34d7[51]](this[_0x34d7[21]])
+        function gen_img(img, imgURL) {
+            var compat_url = window["URL"] || window["webkitURL"];
+            var req = new Request(imgURL);
+            fetch(req)
+                .then(response => response.blob())
+                .then(blob => {
+                    img.src = compat_url.createObjectURL(blob);
+                });
+            img.onload = function() {
+                compat_url.revokeObjectURL(this.src)
             }
-        }
+        };
     </script>{% endcompress %}
 </body>
 
