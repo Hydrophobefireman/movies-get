@@ -44,6 +44,7 @@ def scrape(url):
     regs = re.search(r"id:\s?\"(?P<id>.*?)\"", page)
     if regs:
         v_id = regs.group('id')
+        print(v_id)
         data_r = try_get_ajax(base_url, v_id)
         if data_r:
             print(data_r)
@@ -81,7 +82,10 @@ def try_get_ajax(url, id_):
     }
     data = requests.Session().get(url1, headers=basic_headers).text
     print("[debug]Recieved Data of length:", len(data))
-    htm = json.loads(data)['html']
+    try:
+        htm = json.loads(data)['html']
+    except:
+        return False
     soup = bs(htm, 'html.parser')
     srcs = []
     divs = soup.findAll('a', attrs={"data-id": True})
