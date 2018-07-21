@@ -97,13 +97,13 @@
             margin-top: 20px;
         }
         
-        #d-linker {
+        .ipg_s {
             -moz-border-radius: 20px;
             -webkit-border-radius: 20px;
             border-radius: 20px;
             padding: 8px;
             border: 2px solid #DFE1E5;
-            width: 100%;
+            width: auto;
             outline: none;
             margin-top: 20px;
             background: white;
@@ -147,29 +147,37 @@
                     <input class=input_n style="outline: none" type="text" name="q">
                     <input type="submit" id=fr-ui7-2-g11g class=submit-button style="width:10%;" value='Go'>
                 </form>
-                <div id="custom-dl-box" style='display: none'><button class="ipg0" id="custom-dl">Click Here to Use our custom Video Downloader</button><button class="ipg" id="downloader-info">info</button>
-                    <div id="hdn-info" style="display: none">We Will download the video from the website or extract the mp4 url for you to watch the video without any ads at all!</div>
-                </div>
-                <div id=content>
-                    <div id=ifr-bx> <iframe id=player-frame src="" style="width: 100%;height: 500px;"></iframe></div>
-                    <script>
-                        (function() {
-                            var bl_ob = new Blob(['<div style="text-align:center;">Loading Your Video You can click one of the buttons to change the url</div>'], {
-                                "type": "text/html"
-                            });
-                            document.getElementById("player-frame").src = window.URL.createObjectURL(bl_ob);
-                        })();
-                    </script>
-                    <div class="sources">
-                        <button class="ipg" id="source1">source1</button>
-                        <button class="ipg" id="source2">source2</button>
-                        <button class="ipg" id="source3">source3</button>
+                <h1>Watch: {{movie}}</h3>
+                    <hr>
+                    <div id="custom-dl-box" style='display: none'><button class="ipg0" id="custom-dl">Click Here to Use our custom Video Downloader</button><button class="ipg" id="downloader-info">info</button>
+                        <div id="hdn-info" style="display: none">We Will download the video from the website or extract the mp4 url for you to watch the video without any ads at all!</div>
+                        <div id=buttons-row style="display: none;margin-bottom: 20px;">
+                            <div class=info>Select the site</div>
+                            <button class="ipg_s" id="dl-s1">source1</button>
+                            <button class="ipg_s" id="dl-s2">source2</button>
+                            <button class="ipg_s" id="dl-s3">source3</button>
+                        </div>
                     </div>
-                </div>
+                    <div id=content>
+                        <div id=ifr-bx> <iframe id=player-frame src="" style="width: 100%;height: 500px;"></iframe></div>
+                        <script>
+                            (function() {
+                                var bl_ob = new Blob(['<div style="text-align:center;">Loading Your Video You can click one of the buttons to change the url</div>'], {
+                                    "type": "text/html"
+                                });
+                                document.getElementById("player-frame").src = window.URL.createObjectURL(bl_ob);
+                            })();
+                        </script>
+                        <div class="sources">
+                            <button class="ipg" id="source1">source1</button>
+                            <button class="ipg" id="source2">source2</button>
+                            <button class="ipg" id="source3">source3</button>
+                        </div>
+                    </div>
             </div>
         </div>
         <div class=dead-links>
-            <button class=ipg_s id=d-linker>Report Dead Links</button>
+            <button class=ipg_s id=d-linker style="width: 100%;">Report Dead Links</button>
         </div>
         <script>
             var nonce = "{{nonce|safe}}"
@@ -217,7 +225,7 @@
                 xhr.send(params);
             }
             document.getElementById("c" + "u" + "s" + "tom-dl").onclick = function() {
-                window.location = '/out?url=' + encodeURIComponent(document.getElementById("player-frame").src)
+
             }
 
             function build_player(data, key) {
@@ -227,40 +235,49 @@
                 var alt1 = data['alt1'];
                 var alt2 = data['alt2'];
                 var btns1 = document.getElementById("source1");
-                btns1.setAttribute("data", url);
-                btns1.innerHTML = extractHostname(data['url']);
-                btns1.style.display = ((extractHostname(data['url']) == 'null') ? 'none' : 'inline');
-                btns1.style.display = ((extractHostname(data['url']).toLowerCase() == 'none') ? 'none' : 'inline');
                 var btns2 = document.getElementById("source2");
-                btns2.setAttribute("data", alt1);
-                btns2.innerHTML = extractHostname(data['alt1']);
-                btns2.style.display = ((extractHostname(data['alt1']) == 'null') ? 'none' : 'inline');
-                btns2.style.display = ((extractHostname(data['alt1']).toLowerCase() == 'none') ? 'none' : 'inline');
                 var btns3 = document.getElementById("source3");
-                btns3.setAttribute("data", alt2);
-                btns3.innerHTML = extractHostname(data['alt2']);
-                btns3.style.display = ((extractHostname(data['alt2']) == 'null') ? 'none' : 'inline');
-                btns3.style.display = ((extractHostname(data['alt2']).toLowerCase() == 'none') ? 'none' : 'inline');
+                var btndl1 = document.getElementById("dl-s1");
+                var btndl2 = document.getElementById("dl-s2");
+                var btndl3 = document.getElementById("dl-s3");
+
+                function btndata(btn, btndl, url) {
+                    btn.setAttribute("data", url);
+                    btn.innerHTML = extractHostname(url);
+                    btn.style.display = ((extractHostname(url) == 'null') ? 'none' : 'inline');
+                    btn.style.display = ((extractHostname(url).toLowerCase() == 'none') ? 'none' : 'inline');
+                    btndl.style.display = btn.style.display;
+                    btndl.innerHTML = btn.innerHTML;
+                    btndl.setAttribute("data-dl", url);
+                    btndl.innerHTML = btn.innerHTML;
+                    btn.onclick = function() {
+                        var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e');
+                        document.getElementById("ifr-bx").removeChild(ifr);
+                        ifr.src = this.getAttribute("data");
+                        document.getElementById("ifr-bx").appendChild(ifr);
+                    }
+                    btndl.onclick = function() {
+                        window.location = '/out?url=' + encodeURIComponent(this.getAttribute("data-dl"));
+                    }
+                }
+                btndata(btns1, btndl1, url);
+                btndata(btns2, btndl2, alt1);
+                btndata(btns3, btndl3, alt2);
                 var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e');
                 ifr.src = url;
             }
-            var btns = document.getElementsByClassName("ipg");
-            for (var a = 0; a < btns.length; a++) {
-                btns[a].onclick = function() {
-                    var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e');
-                    document.getElementById("ifr-bx").removeChild(ifr);
-                    ifr.src = this.getAttribute("data");
-                    document.getElementById("ifr-bx").appendChild(ifr);
-                }
-            }
             document.getElementById("downloader-info").onclick = function() {
                 document.getElementById("hdn-info").style.display = 'block';
+                document.getElementById("downloader-info").style.display = 'none';
             }
             start_player(keys);
 
             document.getElementById("d-linker").onclick = function() {
                 window.location = encodeURI("/report?id=" + movie_id);
             };
+            document.getElementById("custom-dl").onclick = function() {
+                document.getElementById("buttons-row").style.display = 'block';
+            }
         </script>
         {% endcompress %}
 </body>
