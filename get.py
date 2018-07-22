@@ -66,7 +66,7 @@ class movieData(db.Model):
 
 def generate_id():
     lst_ = list(base64.urlsafe_b64encode((str(uuid.uuid1())+str(uuid.uuid4()) +
-                                          uuid.uuid4().hex+str(time.time())).encode()).decode().replace("=", '- -'))
+                                          uuid.uuid4().hex+str(time.time())).encode()).decode().replace("=", '--'))
     random.shuffle(lst_)
     return ''.join(lst_)[:gen_rn()]
 

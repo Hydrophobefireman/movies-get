@@ -244,8 +244,11 @@
                 function btndata(btn, btndl, url) {
                     btn.setAttribute("data", url);
                     btn.innerHTML = extractHostname(url);
-                    btn.style.display = ((extractHostname(url) == 'null') ? 'none' : 'inline');
-                    btn.style.display = ((extractHostname(url).toLowerCase() == 'none') ? 'none' : 'inline');
+                    if (extractHostname(url).toLowerCase() == "null" || extractHostname(url).toLowerCase() == 'none') {
+                        btn.style.display = 'none'
+                    } else {
+                        btn.style.display = 'inline'
+                    }
                     btndl.style.display = btn.style.display;
                     btndl.innerHTML = btn.innerHTML;
                     btndl.setAttribute("data-dl", url);
