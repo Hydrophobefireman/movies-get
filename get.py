@@ -225,9 +225,21 @@ def get_all():
     json_data = {}
     forms = request.form['q']
     json_data['movies'] = []
-
     if session['req-all'] != forms:
         return "!cool"
+    if os.path.isfile('.db-cache--all'):
+        with open(".db-cache--all", 'r') as f:
+            try:
+                cached_data = json.loads(f.read())
+                tst = cached_data.get("stamp")
+                if time.time()-float(tst) < 600:
+                    print("Sending Cached Data")
+                    res = make_response(json.dumps(cached_data.get(
+                        "data")))
+                    res.headers['X-Sent-Cached'] = True
+                    return res
+            except:
+                pass
     urls = movieData.query.all()
     random.shuffle(urls)
     for url in urls:
@@ -235,7 +247,12 @@ def get_all():
             {"movie": url.moviedisplay, 'id': url.mid, "thumb": url.thumb})
     if len(json_data['movies']) == 0:
         return json.dumps({'no-res': True})
-    return json.dumps(json_data)
+    meta_ = {"stamp": time.time(), "data": json_data}
+    with open(".db-cache--all", "w") as fs:
+        fs.write(json.dumps(meta_))
+    res = make_response(json.dumps(json_data))
+    res.headers['X-Sent-Cached'] = False
+    return res
 
 
 @app.route('/fetch-token/links/post/', methods=['POST'])
