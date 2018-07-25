@@ -14,17 +14,21 @@ def get_(url, v=True):
     ua = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
     print("[debug]Fetching:\n", url)
     basic_headers = {
-        "User-Agent": ua,
-        "Upgrade-Insecure-Requests": "1",
-        "dnt": '1',
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
+        "User-Agent":
+        ua,
+        "Upgrade-Insecure-Requests":
+        "1",
+        "dnt":
+        '1',
+        "Accept":
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
     }
     sess = requests.Session()
     to_screen(["[debug]Using Standard Headers:", basic_headers], v)
     page = sess.get(url, headers=basic_headers, allow_redirects=True)
     to_screen(["[debug]Page URL:", page.url], v)
-    to_screen(["[debug]Cookie Jar For %s:%s\n" %
-               (page.url, dict(page.cookies))], v)
+    to_screen(
+        ["[debug]Cookie Jar For %s:%s\n" % (page.url, dict(page.cookies))], v)
     soup = bs(page.text, "html.parser")
     url_ = page.url
     to_screen(["[debug]Adding Referer to headers"], v)
@@ -32,7 +36,7 @@ def get_(url, v=True):
     to_screen(["[debug]Adding X-Requested-With to headers"], v)
     basic_headers = {**basic_headers, "X-Requested-With": "XMLHttpRequest"}
     parsed_url = urlp_(url_)
-    host = "https://"+parsed_url.netloc+"/"
+    host = "https://" + parsed_url.netloc + "/"
     div = soup.find(attrs={"data-id": "1"})
     to_screen(["[debug]Finding Ipplayer Configs"], v)
     if div is None:
@@ -45,16 +49,34 @@ def get_(url, v=True):
         to_screen(["[debug]Found Configs:", t.attrs], v)
         to_screen(["[debug]Sleeping for 2 seconds"], v)
         sleep(1)
-        a = sess.post(host+"ip.file/swf/plugins/ipplugins.php", headers=basic_headers, data={
-                      "ipplugins": 1, "ip_film": to_send["data-film"], "ip_server": to_send["data-server"], "ip_name": to_send["data-name"], "fix": 'null'})
+        a = sess.post(
+            host + "ip.file/swf/plugins/ipplugins.php",
+            headers=basic_headers,
+            data={
+                "ipplugins": 1,
+                "ip_film": to_send["data-film"],
+                "ip_server": to_send["data-server"],
+                "ip_name": to_send["data-name"],
+                "fix": 'null'
+            })
         b = json.loads(a.text)
         sleep(1)
         to_screen(["[debug]Recieved:", b], v)
-        ret = sess.post(host+"ip.file/swf/ipplayer/ipplayer.php", cookies=page.cookies, headers=basic_headers,
-                        data={"u": b["s"], "w": "100%25", "h": "500", "s": to_send["data-server"], 'n': '0'})
+        ret = sess.post(
+            host + "ip.file/swf/ipplayer/ipplayer.php",
+            cookies=page.cookies,
+            headers=basic_headers,
+            data={
+                "u": b["s"],
+                "w": "100%25",
+                "h": "500",
+                "s": to_send["data-server"],
+                'n': '0'
+            })
         res = json.loads(ret.text)
-        to_screen(["[debug]Cookie Jar For %s:%s\n" %
-                   (ret.url, dict(ret.cookies))], v)
+        to_screen(
+            ["[debug]Cookie Jar For %s:%s\n" % (ret.url, dict(ret.cookies))],
+            v)
         to_screen(["[debug]Recieved Data:", res], v)
         data.append(res.get("data"))
     to_screen(["\n[debug]Finding Title"], v)
@@ -70,15 +92,15 @@ def get_(url, v=True):
         p_print(data)
         dt_n = input(
             "[info]Enter the number of the url to remove from the List:")
-        data.pop(int(dt_n)-1)
+        data.pop(int(dt_n) - 1)
     if len(data) < 3:
-        nones = [None]*(3-len(data))
+        nones = [None] * (3 - len(data))
         data += nones
     data_dict = {"title": title, "thumbnail": image, "urls": data}
-    db_m_tuple = (data_dict['title'], *
-                  data_dict['urls'], data_dict['thumbnail'])
-    yn = input("[info]Add to Databse:\n\n%s ?(y/n)" %
-               (str(db_m_tuple))).lower()
+    db_m_tuple = (data_dict['title'], *data_dict['urls'],
+                  data_dict['thumbnail'])
+    yn = input(
+        "[info]Add to Databse:\n\n%s ?(y/n)" % (str(db_m_tuple))).lower()
     if yn == 'y':
         print('[info]Adding to database:')
         print(dbmanage.add_to_db(db_m_tuple))
@@ -89,7 +111,7 @@ def get_(url, v=True):
 
 def p_print(el):
     for r in el:
-        print("%d. %s" % (el.index(r)+1, r))
+        print("%d. %s" % (el.index(r) + 1, r))
 
 
 def to_screen(data, v):
