@@ -305,8 +305,8 @@ def send_movie(mid, mdata):
         return "Nope"
     session["req_nonce"] = generate_id()
     if os.path.isdir(".player-cache"):
-        if os.path.isfile(os.path.join(".player-cache", mid + "-thumbdata.json")):
-            with open(os.path.join(".player-cache", mid + "-thumbdata.json"), "r") as f:
+        if os.path.isfile(os.path.join(".player-cache", mid + ".json")):
+            with open(os.path.join(".player-cache", mid + ".json"), "r") as f:
                 try:
                     data = json.loads(f.read())
                     res = make_response(
@@ -332,8 +332,14 @@ def send_movie(mid, mdata):
         return "No movie associated with given id"
     movie_name = meta_.moviedisplay
     thumbnail = meta_.thumb
-    with open(os.path.join(".player-cache", mid + "-thumbdata.json"), "w") as f:
-        data_js = {"movie_name": movie_name, "thumbnail": thumbnail}
+    with open(os.path.join(".player-cache", mid + ".json"), "w") as f:
+        data_js = {
+            "movie_name": movie_name,
+            "thumbnail": thumbnail,
+            "url": meta_.url,
+            "alt1": meta_.alt1,
+            "alt2": meta_.alt2,
+        }
         f.write(json.dumps(data_js))
     res = make_response(
         html_minify(
@@ -358,8 +364,8 @@ def plugin():
     nonce = generate_id()
     session["req_nonce"] = nonce
     if os.path.isdir(".player-cache"):
-        if os.path.isfile(os.path.join(".player-cache", mid + "-fulldata.json")):
-            with open(os.path.join(".player-cache", mid + "-fulldata.json"), "r") as f:
+        if os.path.isfile(os.path.join(".player-cache", mid + ".json")):
+            with open(os.path.join(".player-cache", mid + ".json"), "r") as f:
                 try:
                     data = json.loads(f.read())
                     json_data = {
@@ -378,8 +384,10 @@ def plugin():
         os.mkdir(".player-cache")
     data = movieData.query.filter_by(mid=mid).first()
     common_ = {"url": data.url, "alt1": data.alt1, "alt2": data.alt2}
-    json_data = json.dumps(common_)
-    with open(os.path.join(".player-cache", mid + "-fulldata.json"), "w") as f:
+    json_data = json.dumps(
+        {**common_, "movie_name": data.movie_display, "thumbnail": data.thumb}
+    )
+    with open(os.path.join(".player-cache", mid + ".json"), "w") as f:
         f.write(json_data)
     res = make_response(json_data)
     res.headers["X-Sent-Cached"] = False
