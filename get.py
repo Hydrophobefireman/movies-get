@@ -426,6 +426,8 @@ def add_():
 @app.route("/out")
 def redir():
     url = request.args.get("url")
+    if url.startswith("//"):
+        url = "https:" + url
     return redirect("https://dl-js.herokuapp.com/video?url=" + quote(url))
 
 
