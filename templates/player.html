@@ -39,7 +39,7 @@
             user-select: none;
             margin-top: 20px;
         }
-        
+
         .input_n {
             -moz-border-radius: 15px;
             -webkit-border-radius: 15px;
@@ -48,7 +48,7 @@
             height: 30px;
             padding: 8px;
         }
-        
+
         .submit-button {
             -moz-border-radius: 5px;
             -webkit-border-radius: 5px;
@@ -68,13 +68,13 @@
             user-select: none;
             margin-top: 20px;
         }
-        
+
         .center_stuff {
             margin-left: auto;
             margin-right: auto;
             text-align: center;
         }
-        
+
         .ipg {
             -moz-border-radius: 20px;
             -webkit-border-radius: 20px;
@@ -96,7 +96,7 @@
             user-select: none;
             margin-top: 20px;
         }
-        
+
         .ipg_s {
             -moz-border-radius: 20px;
             -webkit-border-radius: 20px;
@@ -117,16 +117,16 @@
             user-select: none;
             transition: 0.5s;
         }
-        
+
         .links {
             text-decoration: none;
             color: #fff;
         }
-        
+
         .links:hover {
             border-bottom: 1px solid #e3e3e3;
         }
-        
+
         body {
             font-family: 'Open Sans', 'sans-serif';
             margin: 0px;
@@ -137,8 +137,12 @@
 
 <body>
     <div style="position:fixed;width:100%;top:0;margin-left:auto;margin-right:auto;padding: 8px;overflow: hidden;background: #333;text-align: center">
-        <a class=links href='/'><span class='h-link'>Home Page</span></a>
-        <a class=links id='all' href=/all><span class='h-link'>All Movies</span></a>
+        <a class=links href='/'>
+            <span class='h-link'>Home Page</span>
+        </a>
+        <a class=links id='all' href=/all>
+            <span class='h-link'>All Movies</span>
+        </a>
     </div>
     <div class=content-box style="margin-top:35px;">
         <div class=center_stuff>
@@ -149,20 +153,33 @@
                 </form>
                 <h1>Watch: {{movie}}</h3>
                     <hr>
-                    <div id="custom-dl-box" style='display: none'><button class="ipg0" id="custom-dl">Click Here to Use our custom Video Downloader</button><button class="ipg" id="downloader-info">info</button>
-                        <div id="hdn-info" style="display: none">We Will download the video from the website or extract the mp4 url for you to watch the video without any ads at all!</div>
+                    <div id="custom-dl-box" style='display: none'>
+                        <button class="ipg0" id="custom-dl">Click Here to Use our custom Video Downloader</button>
+                        <button class="ipg" id="downloader-info">info</button>
+                        <div id="hdn-info" style="display: none">We Will download the video from the website or extract the mp4 url for you to watch the video without
+                            any ads at all!</div>
                         <div id=buttons-row style="display: none;margin-bottom: 20px;">
                             <div class=info>Select the site</div>
-                            <button class="ipg_s" id="dl-s1">source1</button>
-                            <button class="ipg_s" id="dl-s2">source2</button>
-                            <button class="ipg_s" id="dl-s3">source3</button>
+                            <a href=# id=link-s1>
+                                <button class="ipg_s" id="dl-s1">source1</button>
+                            </a>
+                            <a href=# id=link-s2>
+                                <button class="ipg_s" id="dl-s2">source2</button>
+                            </a>
+                            <a href=# id=link-s3>
+                                <button class="ipg_s" id="dl-s3">source3</button>
+                            </a>
                         </div>
                     </div>
                     <div id=content>
-                        <div id=ifr-bx> <iframe id=player-frame src="" style="width: 100%;height: 500px;"></iframe></div>
+                        <div id=ifr-bx>
+                            <iframe id=player-frame src="" style="width: 100%;height: 500px;"></iframe>
+                        </div>
                         <script>
-                            (function() {
-                                var bl_ob = new Blob(['<div style="text-align:center;">Loading Your Video You can click one of the buttons to change the url</div>'], {
+                            (function () {
+                                var bl_ob = new Blob([
+                                    '<div style="text-align:center;">Loading Your Video You can click one of the buttons to change the url</div>'
+                                ], {
                                     "type": "text/html"
                                 });
                                 document.getElementById("player-frame").src = window.URL.createObjectURL(bl_ob);
@@ -209,14 +226,15 @@
                 xhr.open("POST", '/dat' + 'a-parser/' + 'plugin' + 's/player/', true);
                 xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
-                xhr.onreadystatechange = function() {
+                xhr.onreadystatechange = function () {
                     if (xhr.readyState == 4 && xhr.status == 200) {
                         var data = xhr.response;
                         build_player(data, key);
                     }
                 }
-                xhr.onerror = function() {
-                    var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e');
+                xhr.onerror = function () {
+                    var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' +
+                        'm' + 'e');
                     fetch("/error-configs/")
                         .then(response => response.blob()).then(ret => {
                             ifr.src = window.URL.createObjectURL(ret);
@@ -224,7 +242,7 @@
                 }
                 xhr.send(params);
             }
-            document.getElementById("c" + "u" + "s" + "tom-dl").onclick = function() {
+            document.getElementById("c" + "u" + "s" + "tom-dl").onclick = function () {
 
             }
 
@@ -240,8 +258,11 @@
                 var btndl1 = document.getElementById("dl-s1");
                 var btndl2 = document.getElementById("dl-s2");
                 var btndl3 = document.getElementById("dl-s3");
+                var linkdl1 = document.getElementById("link-s1");
+                var linkdl2 = document.getElementById("link-s2");
+                var linkdl3 = document.getElementById("link-s3");
 
-                function btndata(btn, btndl, url) {
+                function btndata(btn, btndl, url, linkdl) {
                     btn.setAttribute("data", url);
                     btn.innerHTML = extractHostname(url);
                     if (extractHostname(url).toLowerCase() == "null" || extractHostname(url).toLowerCase() == 'none') {
@@ -251,34 +272,35 @@
                     }
                     btndl.style.display = btn.style.display;
                     btndl.innerHTML = btn.innerHTML;
-                    btndl.setAttribute("data-dl", url);
+                    linkdl.href = "/out?url=" + encodeURIComponent(url);
                     btndl.innerHTML = btn.innerHTML;
-                    btn.onclick = function() {
-                        var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e');
+                    btn.onclick = function () {
+                        var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' +
+                            'm' + 'e');
                         document.getElementById("ifr-bx").removeChild(ifr);
                         ifr.src = this.getAttribute("data");
                         document.getElementById("ifr-bx").appendChild(ifr);
                     }
-                    btndl.onclick = function() {
+                    btndl.onclick = function () {
                         window.location = '/out?url=' + encodeURIComponent(this.getAttribute("data-dl"));
                     }
                 }
-                btndata(btns1, btndl1, url);
-                btndata(btns2, btndl2, alt1);
-                btndata(btns3, btndl3, alt2);
+                btndata(btns1, btndl1, url, linkd1);
+                btndata(btns2, btndl2, alt1, linkdl2);
+                btndata(btns3, btndl3, alt2, linkdl3);
                 var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e');
                 ifr.src = url;
             }
-            document.getElementById("downloader-info").onclick = function() {
+            document.getElementById("downloader-info").onclick = function () {
                 document.getElementById("hdn-info").style.display = 'block';
                 document.getElementById("downloader-info").style.display = 'none';
             }
             start_player(keys);
 
-            document.getElementById("d-linker").onclick = function() {
+            document.getElementById("d-linker").onclick = function () {
                 window.location = encodeURI("/report?id=" + movie_id);
             };
-            document.getElementById("custom-dl").onclick = function() {
+            document.getElementById("custom-dl").onclick = function () {
                 document.getElementById("buttons-row").style.display = 'block';
             }
         </script>
