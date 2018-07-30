@@ -263,12 +263,22 @@
                 var linkdl3 = document.getElementById("link-s3");
 
                 function btndata(btn, btndl, url, linkdl) {
+                    if (url.indexOf("://") > -1) {
+                        url = url.replace("http://", "https://");
+
+                    } else if (url.indexOf("//") == 0) {
+                        /* protocol relative url */
+                        url = "https:" + url;
+                    }
+
                     btn.setAttribute("data", url);
                     btn.innerHTML = extractHostname(url);
-                    if (extractHostname(url).toLowerCase() == "null" || extractHostname(url).toLowerCase() == 'none') {
+                    if (extractHostname(url) == "null" || extractHostname(url).toLowerCase() == 'none') {
                         btn.style.display = 'none'
                     } else {
-                        btn.style.display = 'inline'
+                        btn.style.display = 'inline';
+                        btn.setAttribute('data', url.toString().replace("http://", "https://"));
+                        /* chrome will outright block any iframe in http */
                     }
                     btndl.style.display = btn.style.display;
                     btndl.innerHTML = btn.innerHTML;

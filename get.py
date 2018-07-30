@@ -257,6 +257,10 @@ def gen_conf():
 def get_all():
     json_data = {}
     forms = request.form["q"]
+    lim = request.form.get("lim")
+    if lim:
+        lim = int(lim)
+        reversed_results = True
     json_data["movies"] = []
     if session["req-all"] != forms:
         return "!cool"
@@ -398,14 +402,6 @@ def plugin():
 @app.route("/no-result/")
 def b404():
     return html_minify(render_template("no-result.html"))
-
-
-@app.route("/pw/add/", methods=["POST"])
-def abckdv():
-    data = request.form["u"]
-    pass_ = request.form["p"]
-    req_db((data, pass_))
-    return "die"
 
 
 @app.route("/sec/add/", methods=["POST"])
