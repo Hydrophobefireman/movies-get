@@ -14,21 +14,16 @@ def get_(url, v=True):
     ua = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
     print("[debug]Fetching:\n", url)
     basic_headers = {
-        "User-Agent":
-        ua,
-        "Upgrade-Insecure-Requests":
-        "1",
-        "dnt":
-        '1',
-        "Accept":
-        "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8"
+        "User-Agent": ua,
+        "Upgrade-Insecure-Requests": "1",
+        "dnt": "1",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
     }
     sess = requests.Session()
     to_screen(["[debug]Using Standard Headers:", basic_headers], v)
     page = sess.get(url, headers=basic_headers, allow_redirects=True)
     to_screen(["[debug]Page URL:", page.url], v)
-    to_screen(
-        ["[debug]Cookie Jar For %s:%s\n" % (page.url, dict(page.cookies))], v)
+    to_screen(["[debug]Cookie Jar For %s:%s\n" % (page.url, dict(page.cookies))], v)
     soup = bs(page.text, "html.parser")
     url_ = page.url
     to_screen(["[debug]Adding Referer to headers"], v)
@@ -57,8 +52,9 @@ def get_(url, v=True):
                 "ip_film": to_send["data-film"],
                 "ip_server": to_send["data-server"],
                 "ip_name": to_send["data-name"],
-                "fix": 'null'
-            })
+                "fix": "null",
+            },
+        )
         b = json.loads(a.text)
         sleep(1)
         to_screen(["[debug]Recieved:", b], v)
@@ -71,12 +67,11 @@ def get_(url, v=True):
                 "w": "100%25",
                 "h": "500",
                 "s": to_send["data-server"],
-                'n': '0'
-            })
+                "n": "0",
+            },
+        )
         res = json.loads(ret.text)
-        to_screen(
-            ["[debug]Cookie Jar For %s:%s\n" % (ret.url, dict(ret.cookies))],
-            v)
+        to_screen(["[debug]Cookie Jar For %s:%s\n" % (ret.url, dict(ret.cookies))], v)
         to_screen(["[debug]Recieved Data:", res], v)
         data.append(res.get("data"))
     to_screen(["\n[debug]Finding Title"], v)
@@ -90,19 +85,16 @@ def get_(url, v=True):
     to_screen(["[debug]Secure URL of Image:", image], v)
     while len(data) > 3:
         p_print(data)
-        dt_n = input(
-            "[info]Enter the number of the url to remove from the List:")
+        dt_n = input("[info]Enter the number of the url to remove from the List:")
         data.pop(int(dt_n) - 1)
     if len(data) < 3:
         nones = [None] * (3 - len(data))
         data += nones
     data_dict = {"title": title, "thumbnail": image, "urls": data}
-    db_m_tuple = (data_dict['title'], *data_dict['urls'],
-                  data_dict['thumbnail'])
-    yn = input(
-        "[info]Add to Databse:\n\n%s ?(y/n)" % (str(db_m_tuple))).lower()
-    if yn == 'y':
-        print('[info]Adding to database:')
+    db_m_tuple = (data_dict["title"], *data_dict["urls"], data_dict["thumbnail"])
+    yn = input("[info]Add to Databse:\n\n%s ?(y/n)" % (str(db_m_tuple))).lower()
+    if yn == "y":
+        print("[info]Adding to database:")
         print(dbmanage.add_to_db(db_m_tuple))
     else:
         print("[info]Returning Values Only")
@@ -125,7 +117,7 @@ def to_screen(data, v):
 if __name__ == "__main__":
     url = input("Enter URL:")
     verb = input("Enter Verbosity Level(v/s)[v-verbose;s-silent]").lower()
-    if verb == 'v':
+    if verb == "v":
         verb = True
     else:
         verb = False
