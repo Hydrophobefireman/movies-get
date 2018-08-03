@@ -258,9 +258,6 @@ def get_all():
     json_data = {}
     forms = request.form["q"]
     lim = request.form.get("lim")
-    if lim:
-        lim = int(lim)
-        reversed_results = True
     json_data["movies"] = []
     if session["req-all"] != forms:
         return "!cool"
