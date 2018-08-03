@@ -257,7 +257,6 @@ def gen_conf():
 def get_all():
     json_data = {}
     forms = request.form["q"]
-    lim = request.form.get("lim")
     json_data["movies"] = []
     if session["req-all"] != forms:
         return "!cool"
