@@ -211,7 +211,7 @@ def google_():
 def serchs():
     json_data = {}
     json_data["movies"] = []
-    q = re.sub(r"\s", "", request.form["q"]).lower()
+    q = re.sub(r"[^\w]", "", request.form["q"]).lower()
     urls = movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
     for url in urls:
         json_data["movies"].append(
