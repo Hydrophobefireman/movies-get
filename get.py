@@ -415,12 +415,19 @@ def add_():
         return "Malformed Input"
 
 
-@app.route("/out")
+@app.route("/out/", strict_slashes=False)
 def redir():
+    site = session.get("site-select")
     url = request.args.get("url")
     if url.startswith("//"):
         url = "https:" + url
-    return redirect("https://dl-js.herokuapp.com/video?url=" + quote(url))
+    return render_template("sites.html", url=quote(url), site=site), 300
+
+
+@app.route("/set-downloader/", strict_slashes=False)
+def set_dl():
+    session["site-select"] = request.args.get("dl")
+    return redirect(session["site-select"], code=301)
 
 
 if __name__ == "__main__":
