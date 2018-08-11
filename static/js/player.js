@@ -1,11 +1,27 @@
-function extractHostname(url) {
+(function () {
+    if (!String.prototype.includes) {
+        String.prototype.includes = function (search, start) {
+            'use strict';
+            if (typeof start !== 'number') {
+                start = 0;
+            }
+
+            if (start + search.length > this.length) {
+                return false;
+            } else {
+                return this.indexOf(search, start) !== -1;
+            }
+        };
+    }
+})();
+const extractHostname = (url) => {
     try {
-        var a;
-        if (url.indexOf("://") > -1) {
+        let a;
+        if (url.includes("://")) {
             a = new URL(url);
 
         } else {
-            url = "http://" + url;
+            url = `http://${url}`;
             a = new URL(url);
         }
         return a.hostname;
@@ -23,13 +39,13 @@ function start_player(key) {
     xhr.open("POST", '/dat' + 'a-parser/' + 'plugin' + 's/player/', true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
-    xhr.onreadystatechange = function () {
+    xhr.onreadystatechange = () => {
         if (xhr.readyState == 4 && xhr.status == 200) {
-            var data = xhr.response;
+            const data = xhr.response;
             build_player(data, key);
         }
     }
-    xhr.onerror = function () {
+    xhr.onerror = () => {
         var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' +
             'm' + 'e');
         fetch("/error-configs/")
@@ -38,9 +54,6 @@ function start_player(key) {
             })
     }
     xhr.send(params);
-}
-document.getElementById("c" + "u" + "s" + "tom-dl").onclick = function () {
-
 }
 
 function build_player(data, key) {
@@ -98,15 +111,15 @@ function build_player(data, key) {
     var ifr = document.getElementById('p' + 'l' + 'a' + 'y' + 'e' + 'r' + '-' + 'f' + 'r' + 'a' + 'm' + 'e');
     ifr.src = url;
 }
-document.getElementById("downloader-info").onclick = function () {
+document.getElementById("downloader-info").onclick = () => {
     document.getElementById("hdn-info").style.display = 'block';
     document.getElementById("downloader-info").style.display = 'none';
 }
 start_player(keys);
 
-document.getElementById("d-linker").onclick = function () {
+document.getElementById("d-linker").onclick = () => {
     window.location = encodeURI("/report?id=" + movie_id);
 };
-document.getElementById("custom-dl").onclick = function () {
+document.getElementById("custom-dl").onclick = () => {
     document.getElementById("buttons-row").style.display = 'block';
 }

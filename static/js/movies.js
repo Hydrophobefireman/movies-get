@@ -13,7 +13,7 @@ fetch(request)
         nores_()
     })
 
-function nores_() {
+const nores_ = () => {
     document.getElementById("main").style.display = 'none';
     document.getElementById("no-res").style.display = 'block';
 }
@@ -48,8 +48,8 @@ function gen_results(names) {
 function gen_img(img, imgURL) {
     var compat_url = window["URL"] || window["webkitURL"];
     var req = new Request(imgURL);
-    img.onload = function () {
-        compat_url.revokeObjectURL(this.src)
+    img.onload = self => {
+        compat_url.revokeObjectURL(self.target.src)
     }
     fetch(req)
         .then(response => response.blob())
