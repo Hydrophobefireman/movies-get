@@ -21,7 +21,7 @@ const extractHostname = (url) => {
             a = new URL(url);
 
         } else {
-            url = `http://${url}`;
+            url = 'http://' + url;
             a = new URL(url);
         }
         return a.hostname;
