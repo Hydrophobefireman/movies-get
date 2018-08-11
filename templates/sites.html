@@ -12,26 +12,30 @@
             display: block;
         }
     </style>
-
+    <script>
+        (() => document.title = decodeURIComponent('{{url}}'))();
+    </script>
 </head>
 
 <body>
     <div style="margin: auto;text-align: center">
         <span>Select One Of the sites to download the video(both sites only allow 1 video at a time so its better to alternate)</span>
         <span>
-            <a href="/set-downloader/?dl=https://dl-py.herokuapp.com/video?url={{url}}">DL-PY.HEROKUAPP.COM</a>
+            <a href="/set-downloader/?dl=https://dl-js.herokuapp.com/video?url={{url}}">DL-JS.HEROKUAPP.COM</a>
         </span>
         <span>
             <a href="/set-downloader/?dl=https://proxy-py.herokuapp.com/api/parse_query?url={{url}}">PROXY-PY.HEROKUAPP.COM</a>
         </span>
         <div style="margin: 50px">
             Previously Used Site:
-            <span id=site_></span>
+            <span id=site_ style="display: inline"></span>
         </div>
     </div>
     <script>
         const site = (site) => {
-            document.getElementById('site_').innerHTML = site;
+            var _url = new URL(site);
+            var url = _url.hostname;
+            document.getElementById('site_').innerHTML = url;
         }
         site("{{site}}")
     </script>
