@@ -1,4 +1,4 @@
-var request = new Request("/dat" + "a/search/", {
+const request = new Request("/dat" + "a/search/", {
     method: "POST",
     headers: {
         "Content-Type": "application/x-www-form-urlencoded"
@@ -23,21 +23,21 @@ function gen_results(names) {
     if (names.hasOwnProperty("no-res")) {
         nores_()
     }
-    var i = 0;
+    let i = 0;
     document.getElementById("skelly").style.display = 'none';
     for (; i < names["movies"]["length"]; i++) {
-        var img = document.createElement("img");
+        const img = document.createElement("img");
         img.style.backgroundColor = '#e3e3e3';
         gen_img(img, names["movies"][i]["thumb"]);
-        var dv = document.createElement("div");
+        const dv = document.createElement("div");
         dv["className"] = "img-box";
-        var atag = document.createElement("a");
-        atag["href"] = encodeURI("/movie/" + names["movies"][i]["id"] + "/" + names["movies"][i]["movie"].replace(
-            /[^\w]/g, "-") + "?id=" + btoa(Math.random()).slice(0, 8));
+        const atag = document.createElement("a");
+        atag["href"] = encodeURI(`/movie/${names["movies"][i]["id"]}/${names["movies"][i]["movie"].replace(
+    /[^\w]/g, "-")}?id=${btoa(Math.random()).slice(0, 8)}`);
         atag.appendChild(img);
         dv.appendChild(atag);
         img.className = 'display-img';
-        var sp = document.createElement("span");
+        const sp = document.createElement("span");
         sp["className"] = "text-box";
         sp["innerHTML"] = names["movies"][i]["movie"];
         dv.appendChild(sp);
@@ -45,9 +45,9 @@ function gen_results(names) {
     }
 }
 
-function gen_img(img, imgURL) {
-    var compat_url = window["URL"] || window["webkitURL"];
-    var req = new Request(imgURL);
+const gen_img = (img, imgURL) => {
+    const compat_url = window["URL"] || window["webkitURL"];
+    const req = new Request(imgURL);
     img.onload = self => {
         compat_url.revokeObjectURL(self.target.src)
     }

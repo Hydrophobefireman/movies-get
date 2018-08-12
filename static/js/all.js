@@ -1,4 +1,4 @@
-function start(params) {
+const start = (params) => {
     var request = new Request("/dat" + "a/specs/", {
         method: "POST",
         headers: {
@@ -12,6 +12,7 @@ function start(params) {
         .then(response => {
             gen_results(response);
         }).catch(e => {
+            console.warn(e);
             nores_()
         })
 }
@@ -48,7 +49,7 @@ function gen_results(names) {
     }
 }
 
-function gen_img(img, imgURL) {
+const gen_img = (img, imgURL) => {
     var compat_url = window["URL"] || window["webkitURL"];
     var req = new Request(imgURL);
     img.onload = self => {
@@ -63,7 +64,7 @@ function gen_img(img, imgURL) {
         });
 };
 
-function fetch_2(data) {
+const fetch_2 = data => {
     var _params = 'data=' + encodeURIComponent(data);
     var reqs = new Request('/fetch-token/links/post/', {
         method: "POST",
