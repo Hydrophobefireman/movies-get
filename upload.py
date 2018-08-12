@@ -8,9 +8,9 @@ def upload(imgurl):
     if clapi_key is None:
         try:
             with open("a.cloudinary", "r") as f:
-                clapi_key = f.read()
+                clapi_key = f.read().strip()
             with open("b.cloudinary", "r") as f:
-                clapi_secret = f.read()
+                clapi_secret = f.read().strip()
         except:
             raise Exception("no key provided")
     cloudinary.config(cloud_name="proxypy", api_key=clapi_key, api_secret=clapi_secret)
