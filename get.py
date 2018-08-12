@@ -299,7 +299,7 @@ def s_confs():
     )
 
 
-@app.route("/movie/<mid>/<mdata>/")
+@app.route("/movie/<mid>/<mdata>/", strict_slashes=False)
 def send_movie(mid, mdata):
     if mid is None:
         return "Nope"
