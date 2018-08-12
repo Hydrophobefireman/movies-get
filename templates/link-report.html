@@ -90,16 +90,15 @@
 
                 document.getElementById("sbmit-report").onclick = () => {
                     const report = new Request("/submit/report/", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/x-www-form-urlencoded"
-                            },
-                            body: 'id=' + encodeURIComponent("{{m_id|safe}}")
-                        }
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: 'id=' + encodeURIComponent("{{m_id|safe}}")
                     });
-                fetch(report).then(response => response.text()).then(ret => {
-                    document.getElementById("sub-success-error").innerHTML = ret;
-                })
+                    fetch(report).then(response => response.text()).then(ret => {
+                        document.getElementById("sub-success-error").innerHTML = ret;
+                    })
                 }
             </script>{% endcompress %}
         </div>
