@@ -62,16 +62,6 @@
                         <div id=ifr-bx>
                             <iframe id=player-frame src="" style="width: 100%;height: 500px;"></iframe>
                         </div>
-                        <script>
-                            (function () {
-                                var bl_ob = new Blob([
-                                    '<div style="text-align:center;">Loading Your Video You can click one of the buttons to change the url</div>'
-                                ], {
-                                    "type": "text/html"
-                                });
-                                document.getElementById("player-frame").src = window.URL.createObjectURL(bl_ob);
-                            })();
-                        </script>
                         <div class="sources">
                             <button class="ipg" id="source1">source1</button>
                             <button class="ipg" id="source2">source2</button>
@@ -84,6 +74,16 @@
             <button class=ipg_s id=d-linker style="width: 100%;">Report Dead Links</button>
         </div>
         {% compress 'js' %}
+        <script>
+            (() => {
+                var bl_ob = new Blob([
+                    '<div style="text-align:center;">Loading Your Video You can click one of the buttons to change the url</div>'
+                ], {
+                    "type": "text/html"
+                });
+                document.getElementById("player-frame").src = window.URL.createObjectURL(bl_ob);
+            })();
+        </script>
         <script>
             var nonce = "{{nonce|safe}}"
         </script>
