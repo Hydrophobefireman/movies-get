@@ -18,7 +18,7 @@ const nores_ = () => {
     document.getElementById("no-res").style.display = 'block';
 }
 
-function gen_results(names) {
+const gen_results = (names) => {
     var names = JSON.parse(names);
     if (names.hasOwnProperty("no-res")) {
         nores_()
