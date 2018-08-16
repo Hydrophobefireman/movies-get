@@ -22,7 +22,6 @@ from flask import (
     url_for,
     make_response,
 )
-from flask_compress import Compress
 from flask_sqlalchemy import SQLAlchemy
 from htmlmin.minify import html_minify
 from jac.contrib.flask import JAC
@@ -31,7 +30,6 @@ import streamsites as st
 from dbmanage import req_db
 
 app = Flask(__name__)
-Compress(app)
 app.config["COMPRESSOR_DEBUG"] = app.config.get("DEBUG")
 app.config["COMPRESSOR_OUTPUT_DIR"] = "./static/jsbin"
 app.config["COMPRESSOR_STATIC_PREFIX"] = "/static/jsbin/"
@@ -219,7 +217,9 @@ def serchs():
         )
     if len(json_data["movies"]) == 0:
         return json.dumps({"no-res": True})
-    return json.dumps(json_data)
+    res = make_response(json_data)
+    res.headers["Content-Type"] = "application/json"
+    return res
 
 
 @app.route("/error-configs/")
