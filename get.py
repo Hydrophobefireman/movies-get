@@ -217,9 +217,7 @@ def serchs():
         )
     if len(json_data["movies"]) == 0:
         return json.dumps({"no-res": True})
-    res = make_response(json_data)
-    res.headers["Content-Type"] = "application/json"
-    return res
+    return Response(json_data, content_type="application/json")
 
 
 @app.route("/error-configs/")

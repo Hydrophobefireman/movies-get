@@ -30,7 +30,7 @@ http {
 	image/svg+xml
 	application/rss+xml
 	application/atom_xml;
-	log_format l2met 'USER_AGENT=$http_user_agent X-Forwarded-For=$http_x_forwarded_for';
+	log_format l2met 'USER_AGENT=$http_user_agent X-Forwarded-For=$http_x_forwarded_for referer=$referer';
 	access_log logs/nginx/access.log l2met;
 	error_log logs/nginx/error.log;
 	types {
