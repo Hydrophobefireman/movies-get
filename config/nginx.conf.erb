@@ -15,7 +15,9 @@ http {
 	gzip_min_length 512;
 	gzip_vary on;
 	server_tokens off;
-	gzip_types text/css
+	gzip_types 
+	text/html
+	text/css
 	text/plain
 	text/javascript
 	application/javascript
@@ -30,7 +32,7 @@ http {
 	image/svg+xml
 	application/rss+xml
 	application/atom_xml;
-	log_format l2met 'USER_AGENT=$http_user_agent X-Forwarded-For=$http_x_forwarded_for referer=$referer';
+	log_format l2met 'USER_AGENT=$http_user_agent X-Forwarded-For=$http_x_forwarded_for';
 	access_log logs/nginx/access.log l2met;
 	error_log logs/nginx/error.log;
 	types {
