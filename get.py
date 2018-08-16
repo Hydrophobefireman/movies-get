@@ -217,7 +217,7 @@ def serchs():
         )
     if len(json_data["movies"]) == 0:
         return json.dumps({"no-res": True})
-    return Response(json_data, content_type="application/json")
+    return Response(json.dumps(json_data), content_type="application/json")
 
 
 @app.route("/error-configs/")
