@@ -267,6 +267,7 @@ def get_all():
                     print("Sending Cached Data")
                     res = make_response(json.dumps(cached_data.get("data")))
                     res.headers["X-Sent-Cached"] = True
+                    res.headers["Content-Type"] = "application/json"
                     return res
             except:
                 pass
@@ -283,6 +284,7 @@ def get_all():
         fs.write(json.dumps(meta_))
     res = make_response(json.dumps(json_data))
     res.headers["X-Sent-Cached"] = False
+    res.headers["Content-Type"] = "application/json"
     return res
 
 
