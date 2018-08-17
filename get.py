@@ -5,34 +5,33 @@ import random
 import re
 import time
 import uuid
-from urllib.parse import quote, unquote
+from urllib.parse import quote
 
-from flask_tools import flaskUtils
-import psycopg2
-import requests
-from bs4 import BeautifulSoup as bs
+# import psycopg2
+# import requests
+# from bs4 import BeautifulSoup as bs
 from flask import (
     Flask,
+    Response,
+    make_response,
     redirect,
     render_template,
     request,
-    Response,
     send_from_directory,
     session,
-    url_for,
-    make_response,
 )
 from flask_sqlalchemy import SQLAlchemy
 from htmlmin.minify import html_minify
 from jac.contrib.flask import JAC
 
-import streamsites as st
 from dbmanage import req_db
+from flask_tools import flaskUtils
 
 app = Flask(__name__)
 app.config["COMPRESSOR_DEBUG"] = app.config.get("DEBUG")
 app.config["COMPRESSOR_OUTPUT_DIR"] = "./static/jsbin"
 app.config["COMPRESSOR_STATIC_PREFIX"] = "/static/jsbin/"
+app.config["FORCE_HTTPS_ON_PROD"] = True
 jac = JAC(app)
 flaskUtils(app)
 app.secret_key = "H(|hGh<;e"
@@ -44,12 +43,14 @@ try:
             dburl = f.read()
 except FileNotFoundError:
     raise Exception(
-        "No DB url specified try add it to the environment or create a .dbinfo_ file with the url"
+        "No DB url specified try add it to the environment or \
+        create a .dbinfo_ file with the url"
     )
 app.config["SQLALCHEMY_DATABASE_URI"] = dburl
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
-USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
+USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
+            (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
 
 
 class movieData(db.Model):
@@ -119,17 +120,6 @@ class deadLinks(db.Model):
 
     def __repr__(self):
         return "<Name %r>" % self.movieid
-
-
-@app.before_request
-def https():
-    if (
-        request.endpoint in app.view_functions
-        and not request.is_secure
-        and "127.0.0.1" not in request.url
-        and not "localhost" in request.url
-    ):
-        return redirect(request.url.replace("http://", "https://"), code=301)
 
 
 @app.route("/robots.txt")
@@ -432,4 +422,3 @@ def set_dl():
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")
-

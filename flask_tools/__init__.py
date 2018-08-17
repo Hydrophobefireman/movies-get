@@ -29,17 +29,23 @@ class flaskUtils(object):
         app.extensions["utils_ext"] = self
         self.app = app
 
+
         @app.before_request
-        def https():
-            request.process_time = time.time()
+        def enforce_https():
             if (
-                app.config.get("FORCE_HTTPS_ON_PROD")
-                and request.endpoint in app.view_functions
+                request.endpoint in app.view_functions
                 and not request.is_secure
-                and "127.0.0.1" not in request.url
-                and "localhost" not in request.url
+                and not "127.0.0.1" in request.url
+                and not "localhost" in request.url
+                and not "192.168." in request.url
+                and not request.url.startswith("http://")
             ):
-                return redirect(request.url.replace("http://", "https://"), code=301)
+                rd = request.url.replace("http://", "https://")
+                if "?" in rd:
+                    rd += "&rd=ssl"
+                else:
+                    rd += "?rd=ssl"
+                return redirect(rd, code=307)
 
         @app.after_request
         def after_req_headers(res):
