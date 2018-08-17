@@ -32,6 +32,7 @@ class flaskUtils(object):
 
         @app.before_request
         def enforce_https():
+            request.process_time = time.time()
             if (
                 request.endpoint in app.view_functions
                 and not request.is_secure
