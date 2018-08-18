@@ -116,9 +116,8 @@ const btndata = (btn, btndl, url, linkdl) => {
     }
     start_player(keys);
 
-    document.getElementById("d-linker").onclick = () => {
-        window.location = encodeURI("/report?id=" + movie_id);
-    };
+    document.getElementById("d-linker").href = encodeURI("/report?id=" + movie_id);
+
     document.getElementById("custom-dl").onclick = () => {
         document.getElementById("buttons-row").style.display = 'block';
     }
