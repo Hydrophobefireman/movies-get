@@ -6,6 +6,9 @@ import re
 import time
 import uuid
 from urllib.parse import quote
+import secrets
+from api import ippl_api
+import threading
 
 # import psycopg2
 # import requests
@@ -75,25 +78,14 @@ class movieData(db.Model):
         return "<Name %r>" % self.movie
 
 
-def generate_id():
-    lst_ = list(
-        base64.urlsafe_b64encode(
-            (
-                str(uuid.uuid1())
-                + str(uuid.uuid4())
-                + uuid.uuid4().hex
-                + str(time.time())
-            ).encode()
-        )
-        .decode()
-        .replace("=", "--")
-    )
-    random.shuffle(lst_)
-    return "".join(lst_)[: gen_rn()]
+def generate_id() -> str:
+    lst_ = secrets.token_urlsafe()
+    return lst_[: gen_rn()]
 
 
 def gen_rn():
-    return random.randint(5, 17)
+    # when randint was 5..we got 3 duplicates in every 1 million entries..
+    return random.randint(10, 17)
 
 
 class movieRequests(db.Model):
@@ -403,6 +395,33 @@ def add_():
         return str(col)
     except:
         return "Malformed Input"
+
+
+@app.route("/media/add/")
+def add_show():
+    return render_template("shows-add.html")
+
+
+@app.route("/media/add-shows/fetch/", strict_slashes=False)
+def search_shows():
+    show = request.args.get("s")
+    return Response(ippl_api.main_(term=show), content_type="application/json")
+
+
+@app.route("/add/tv-show/lookup/", strict_slashes=False)
+def add_show_lookup():
+    _show_url = request.args.get("s")
+    title = request.args.get("t", "")
+    q = re.sub(r"([^\w]|_)", "", title).lower()
+    urls = movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
+    if len(urls) > 0:
+        return (
+            "We already have a show with similar name..to prevent multiple copies of the same show..please request this show to be manually added",
+            403,
+        )
+    thread = threading.Thread(target=ippl_api.get_, args=(_show_url, title))
+    thread.start()
+    return render_template("shows_add_evt.html", show_url=_show_url, show=title)
 
 
 @app.route("/out/", strict_slashes=False)

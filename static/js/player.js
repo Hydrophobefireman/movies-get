@@ -88,7 +88,10 @@ const btndata = (btn, btndl, url, linkdl) => {
     btn.setAttribute("data", url);
     btn.innerHTML = extractHostname(url);
     if (extractHostname(url) == "null" || extractHostname(url).toLowerCase() == 'none') {
-        btn.style.display = 'none'
+        btn.remove();
+        btndl.remove();
+        linkdl.remove();
+        return
     } else {
         btn.style.display = 'inline';
         btn.setAttribute('data', url.toString().replace("http://", "https://"));
