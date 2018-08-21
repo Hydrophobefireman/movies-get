@@ -187,12 +187,18 @@ def google_():
     return "google-site-verification: googlef06ee521abc7bdf8.html"
 
 
+def movie_list_sort(md):
+    return md.movie
+
+
 @app.route("/data/search/", methods=["POST"])
 def serchs():
     json_data = {}
     json_data["movies"] = []
     q = re.sub(r"[^\w]", "", request.form["q"]).lower()
-    urls = movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
+    urls = (
+        movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all().sort()
+    )
     for url in urls:
         json_data["movies"].append(
             {"movie": url.moviedisplay, "id": url.mid, "thumb": url.thumb}
