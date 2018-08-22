@@ -196,9 +196,9 @@ def serchs():
     json_data = {}
     json_data["movies"] = []
     q = re.sub(r"[^\w]", "", request.form["q"]).lower()
-    urls = (
-        movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all().sort()
-    )
+    urls = movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
+    urls.sort(key=movie_list_sort)
+
     for url in urls:
         json_data["movies"].append(
             {"movie": url.moviedisplay, "id": url.mid, "thumb": url.thumb}
