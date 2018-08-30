@@ -32,7 +32,7 @@ const gen_results = (names) => {
         const dv = document.createElement("div");
         dv["className"] = "img-box";
         const atag = document.createElement("a");
-        atag["href"] = encodeURI("/movie/" + names["movies"][i]["id"] + "/" + names["movies"][i]["movie"].replace(/[^\w]/g, "-") + "?id=" + btoa(Math.random()).slice(0, 8));
+        atag["href"] = encodeURI("/movie/" + names["movies"][i]["id"] + "/" + names["movies"][i]["movie"].replace(/[^\w]/g, "-"));
         atag.appendChild(img);
         dv.appendChild(atag);
         img.className = 'display-img';
