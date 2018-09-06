@@ -50,11 +50,11 @@
             </div>
         </div>
     </div>
-    {% compress 'js' %}
+
     <script>
         window.__data = "{{data|safe}}";
     </script>
-    <script src='/static/jsmin/all.js'></script>{% endcompress %}
+    <script src='/static/jsmin/all.js'></script>
 </body>
 
 </html>

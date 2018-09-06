@@ -27,8 +27,7 @@
         <a class=links href='/'>
             <span class='h-link'>Home Page</span>
         </a>
-        <a class=links id='all' href=/all>
-            <span class='h-link'>All Movies</span>
+        <a class=links id='all' href=/all> <span class='h-link'>All Movies</span>
         </a>
     </div>
     <div class=content-box style="margin-top:35px;">
@@ -43,7 +42,8 @@
                     <div id="custom-dl-box" style='display: none'>
                         <button class="ipg0" id="custom-dl">Click Here to Use our custom Video Downloader</button>
                         <button class="ipg" id="downloader-info" style="border-radius:5px;">info</button>
-                        <div id="hdn-info" style="display: none">We Will download the video from the website or extract the mp4 url for you to watch the video without
+                        <div id="hdn-info" style="display: none">We Will download the video from the website or extract
+                            the mp4 url for you to watch the video without
                             any ads at all!</div>
                         <div id=buttons-row style="display: none;margin-bottom: 20px;">
                             <div class=info>Select the site</div>
@@ -75,7 +75,7 @@
                 <button class=ipg_s style="width: 100%;">Report Dead Links</button>
             </a>
         </div>
-        {% compress 'js' %}
+
         <script>
             (() => {
                 var bl_ob = new Blob([
@@ -90,7 +90,7 @@
             var nonce = "{{nonce|safe}}";
         </script>
         <script src='/static/jsmin/player.js'></script>
-        {% endcompress %}
+
 </body>
 
 </html>
