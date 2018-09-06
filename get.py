@@ -3,16 +3,14 @@ import json
 import os
 import random
 import re
+import secrets
+import threading
 import time
 import uuid
 from urllib.parse import quote
-import secrets
-from api import ippl_api
-import threading
 
-# import psycopg2
-# import requests
-# from bs4 import BeautifulSoup as bs
+from flask_sqlalchemy import SQLAlchemy
+from htmlmin.minify import html_minify
 from quart import (
     Quart,
     Response,
@@ -22,11 +20,10 @@ from quart import (
     request,
     send_from_directory,
     session,
+    websocket,
 )
-from flask_sqlalchemy import SQLAlchemy
-from htmlmin.minify import html_minify
 
-
+from api import ippl_api
 from dbmanage import req_db
 from flask_tools import flaskUtils
 
@@ -168,6 +165,43 @@ async def ask_get():
     return html_minify(await render_template("help.html"))
 
 
+@app.websocket("/suggestqueries")
+async def socket_conn():
+    while 1:
+        query = await websocket.receive()
+        file = ".db-cache--all"
+        data = None
+        json_data = {"data": []}
+        no_data = True
+        if os.path.isfile(file):
+            no_data = False
+            with open(file, "r") as f:
+                _data = f.read()
+            try:
+                data = json.loads(_data)
+                names = data["data"]["movies"]
+                json_data["data"] = [
+                    s
+                    for s in names
+                    if re.search(r".*?%s" % (query), s["movie"], re.IGNORECASE)
+                ]
+                await websocket.send(json.dumps({**json_data, "Cached": True}))
+            except:
+                no_data = True
+        if no_data:
+            urls = movieData.query.all()
+            for url in urls:
+                json_data["data"].append(
+                    {"movie": url.moviedisplay, "id": url.mid, "thumb": url.thumb}
+                )
+            if len(json_data["data"]) == 0:
+                return json.dumps({"no-res": True})
+            meta_ = {"stamp": time.time(), "data": json_data}
+            with open(file, "w") as fs:
+                fs.write(json.dumps(meta_))
+            await websocket.send(json.dumps({**json_data, "Cached": False}))
+
+
 @app.route("/db-manage/parse-requests/", methods=["POST"])
 async def get_s():
     _form = await request.form
@@ -247,7 +281,7 @@ async def get_all():
             try:
                 cached_data = json.loads(f.read())
                 tst = cached_data.get("stamp")
-                if time.time() - float(tst) < 600:
+                if time.time() - float(tst) < 6000:
                     print("Sending Cached Data")
                     res = await make_response(json.dumps(cached_data.get("data")))
                     res.headers["X-Sent-Cached"] = str(True)
@@ -445,5 +479,4 @@ async def set_dl():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", use_reloader=True,port=8000)
-
+    app.run(debug=True, host="0.0.0.0", use_reloader=True)

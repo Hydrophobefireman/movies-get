@@ -10,6 +10,7 @@ fetch(request)
     .then(response => {
         gen_results(response);
     }).catch(e => {
+        console.log(e);
         nores_()
     })
 
@@ -45,7 +46,7 @@ const gen_results = (names) => {
 }
 
 const gen_img = (img, imgURL) => {
-    const compat_url = window["URL"] || window["webkitURL"];
+    const compat_url = window["URL"] | window["webkitURL"];
     const req = new Request(imgURL);
     img.onload = self => {
         compat_url.revokeObjectURL(self.target.src)
