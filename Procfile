@@ -1,1 +1,1 @@
-web: bin/start-nginx exec gunicorn -c gunicorn.conf get:app
+web: hypercorn get:app -k 5
