@@ -184,6 +184,7 @@ async def socket_conn():
                     s
                     for s in names
                     if re.search(r".*?%s" % (query), s["movie"], re.IGNORECASE)
+                    is not None
                 ]
                 await websocket.send(json.dumps({**json_data, "Cached": True}))
             except:
