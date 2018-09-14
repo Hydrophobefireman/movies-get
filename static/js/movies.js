@@ -33,7 +33,7 @@ const gen_results = (names) => {
         const dv = document.createElement("div");
         dv["className"] = "img-box";
         const atag = document.createElement("a");
-        atag["href"] = encodeURI("/movie/" + names["movies"][i]["id"] + "/" + names["movies"][i]["movie"].replace(/[^\w]/g, "-"));
+        atag["href"] = encodeURI(`/movie/${names["movies"][i]["id"]}/${names["movies"][i]["movie"].replace(/[^\w]/g, "-")}`);
         atag.appendChild(img);
         dv.appendChild(atag);
         img.className = 'display-img';
@@ -48,8 +48,8 @@ const gen_results = (names) => {
 const gen_img = (img, imgURL) => {
     const compat_url = window["URL"] | window["webkitURL"];
     const req = new Request(imgURL);
-    img.onload = self => {
-        compat_url.revokeObjectURL(self.target.src)
+    img.onload = ({target}) => {
+        compat_url.revokeObjectURL(target.src)
     }
     fetch(req)
         .then(response => response.blob())

@@ -1,19 +1,3 @@
-(() => {
-    if (!String.prototype.includes) {
-        String.prototype.includes = (search, start) => {
-            'use strict';
-            if (typeof start !== 'number') {
-                start = 0;
-            }
-
-            if (start + search.length > this.length) {
-                return false;
-            } else {
-                return this.indexOf(search, start) !== -1;
-            }
-        };
-    }
-})();
 const extractHostname = (url) => {
     try {
         let a;
@@ -21,7 +5,7 @@ const extractHostname = (url) => {
             a = new URL(url);
 
         } else {
-            url = 'http://' + url;
+            url = `http://${url}`;
             a = new URL(url);
         }
         return a.hostname;
@@ -35,8 +19,8 @@ const keys = "set-id";
 
 const start_player = (key) => {
     console.log(key);
-    var params = eval('encodeURI("id=" + movie_id + "&nonce=" + nonce)');
-    var xhr = new XMLHttpRequest();
+    const params = eval('encodeURI("id=" + movie_id + "&nonce=" + nonce)');
+    const xhr = new XMLHttpRequest();
     xhr.open("POST", "/data-parser/plugins/player/", true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.onreadystatechange = () => {
@@ -46,7 +30,7 @@ const start_player = (key) => {
         }
     }
     xhr.onerror = () => {
-        var ifr = document.getElementById("player-frame")
+        const ifr = document.getElementById("player-frame");
         fetch("/error-configs/")
             .then(response => response.blob()).then(ret => {
                 ifr.src = window.URL.createObjectURL(ret);
@@ -58,18 +42,18 @@ const start_player = (key) => {
 const build_player = (data, key) => {
     document.getElementById("custom-dl-box").style.display = 'block';
     data = JSON.parse(data);
-    const url = data.url;
-    const alt1 = data.alt1;
-    const alt2 = data.alt2;
-    const btns1 = document.getElementById("source1");
-    const btns2 = document.getElementById("source2");
-    const btns3 = document.getElementById("source3");
-    const btndl1 = document.getElementById("dl-s1");
-    const btndl2 = document.getElementById("dl-s2");
-    const btndl3 = document.getElementById("dl-s3");
-    const linkdl1 = document.getElementById("link-s1");
-    const linkdl2 = document.getElementById("link-s2");
-    const linkdl3 = document.getElementById("link-s3");
+    const url = data.url,
+        alt1 = data.alt1,
+        alt2 = data.alt2,
+        btns1 = document.getElementById("source1"),
+        btns2 = document.getElementById("source2"),
+        btns3 = document.getElementById("source3"),
+        btndl1 = document.getElementById("dl-s1"),
+        btndl2 = document.getElementById("dl-s2"),
+        btndl3 = document.getElementById("dl-s3"),
+        linkdl1 = document.getElementById("link-s1"),
+        linkdl2 = document.getElementById("link-s2"),
+        linkdl3 = document.getElementById("link-s3");
     btndata(btns1, btndl1, url, linkdl1);
     btndata(btns2, btndl2, alt1, linkdl2);
     btndata(btns3, btndl3, alt2, linkdl3);
@@ -83,7 +67,7 @@ const btndata = (btn, btndl, url, linkdl) => {
 
     } else if (url.indexOf("//") == 0) {
         /* protocol relative url */
-        url = 'https:' + url;
+        url = `https:${url}`;
     }
     btn.setAttribute("data", url);
     btn.innerHTML = extractHostname(url);
@@ -99,16 +83,20 @@ const btndata = (btn, btndl, url, linkdl) => {
     }
     btndl.style.display = btn.style.display;
     btndl.innerHTML = btn.innerHTML;
-    linkdl.href = "/out?url=" + encodeURIComponent(url);
+    linkdl.href = `/out?url=${encodeURIComponent(url)}`;
     btndl.innerHTML = btn.innerHTML;
-    btn.onclick = e => {
+    btn.onclick = ({
+        target
+    }) => {
         const ifr = document.getElementById("player-frame");
         document.getElementById("ifr-bx").removeChild(ifr);
-        ifr.src = e.target.getAttribute("data");
+        ifr.src = target.getAttribute("data");
         document.getElementById("ifr-bx").appendChild(ifr);
     }
-    btndl.onclick = e => {
-        window.location = "/out?url=" + encodeURIComponent(e.target.getAttribute("data-dl"));
+    btndl.onclick = ({
+        target
+    }) => {
+        window.location = `/out?url=${encodeURIComponent(target.getAttribute("data-dl"))}`;
     }
 }
 
@@ -119,7 +107,7 @@ const btndata = (btn, btndl, url, linkdl) => {
     }
     start_player(keys);
 
-    document.getElementById("d-linker").href = encodeURI("/report?id=" + movie_id);
+    document.getElementById("d-linker").href = encodeURI(`/report?id=${movie_id}`);
 
     document.getElementById("custom-dl").onclick = () => {
         document.getElementById("buttons-row").style.display = 'block';
