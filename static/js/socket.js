@@ -35,8 +35,8 @@ const inp_res = document.getElementById('inp-results');
 
         const data = msg.data;
         console.log(`Response Cached:${msg.Cached}`);
-        for (let i = 0; i < data.length; i++) {
-            const js = data[i];
+
+        for (const js of data) {
             const div = document.createElement("div");
             const span = document.createElement('span');
             div.setAttribute('data-im', js.id);

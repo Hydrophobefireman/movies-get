@@ -18,7 +18,7 @@ const nores_ = () => {
     document.getElementById("main").style.display = 'none';
     document.getElementById("no-res").style.display = 'block';
 }
-
+zz
 const gen_results = (names) => {
     var names = JSON.parse(names);
     if (names.hasOwnProperty("no-res")) {
@@ -48,7 +48,9 @@ const gen_results = (names) => {
 const gen_img = (img, imgURL) => {
     const compat_url = window["URL"] | window["webkitURL"];
     const req = new Request(imgURL);
-    img.onload = ({target}) => {
+    img.onload = ({
+        target
+    }) => {
         compat_url.revokeObjectURL(target.src)
     }
     fetch(req)
