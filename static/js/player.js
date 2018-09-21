@@ -83,7 +83,7 @@ const btndata = (btn, btndl, url, linkdl) => {
     }
     btndl.style.display = btn.style.display;
     btndl.innerHTML = btn.innerHTML;
-    linkdl.href = `/out?url=${encodeURIComponent(url)}`;
+    linkdl.href = `/out/?url=${encodeURIComponent(url)}`;
     btndl.innerHTML = btn.innerHTML;
     btn.onclick = ({
         target
@@ -96,7 +96,7 @@ const btndata = (btn, btndl, url, linkdl) => {
     btndl.onclick = ({
         target
     }) => {
-        window.location = `/out?url=${encodeURIComponent(target.getAttribute("data-dl"))}`;
+        window.location = `/out/?url=${encodeURIComponent(target.getAttribute("data-dl"))}`;
     }
 }
 
