@@ -123,12 +123,11 @@ async def index():
     return html_minify(await render_template("index.html", msg=d))
 
 
-@app.route("/report/")
+@app.route("/report")
 async def report_dead():
     m_id = request.args.get("id")
     if m_id is None:
         return "No movie id specified"
-    
     meta_ = movieData.query.filter_by(mid=m_id).first()
     if meta_ is None:
         return "No movie associated with given id"
@@ -205,7 +204,7 @@ async def socket_conn():
                 no_data = True
         if no_data:
             cached = False
-            urls = movieData.query.all()
+            urls = tvData.query.all()
             for url in urls:
                 names.append(
                     {"movie": url.moviedisplay, "id": url.mid, "thumb": url.thumb}
