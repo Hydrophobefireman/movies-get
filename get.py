@@ -204,7 +204,7 @@ async def socket_conn():
                 no_data = True
         if no_data:
             cached = False
-            urls = tvData.query.all()
+            urls = movieData.query.all()
             for url in urls:
                 names.append(
                     {"movie": url.moviedisplay, "id": url.mid, "thumb": url.thumb}
