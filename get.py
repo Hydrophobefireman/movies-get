@@ -81,6 +81,17 @@ def gen_rn():
     return random.randint(10, 17)
 
 
+class DataLytics(db.Model):
+    idx = db.Column(db.Integer, primary_key=True)
+    actions = db.Column(db.PickleType)
+
+    def __init__(self, act):
+        self.actions = act
+
+    def __repr__(self):
+        return f"<DATA-ID:{self.idx}>"
+
+
 class movieRequests(db.Model):
     r_id = db.Column(db.Integer, primary_key=True)
     movie = db.Column(db.String(100))
@@ -105,6 +116,31 @@ class deadLinks(db.Model):
 
     def __repr__(self):
         return "<Name %r>" % self.movieid
+
+
+@app.route("/beacons/dltcs/<path:r_id>/", methods=["POST"])
+async def add_action(r_id):
+    form = await request.form
+    data = form["action"]
+    col = DataLytics(data)
+    db.session.add(col)
+    db.session.commit()
+    return Response(json.dumps({"success": r_id}))
+
+
+@app.route("/submit/report/", methods=["POST"])
+async def parse_report():
+    try:
+        _mid = await request.form
+        mid = _mid["id"]
+        col = deadLinks(mid)
+        db.session.add(col)
+        db.session.commit()
+        return "Response recorded.Thank You for your help!"
+    except Exception as e:
+        print(e)
+        return "An unknown error occured during processing your request"
+    # raise e
 
 
 @app.route("/robots.txt")
@@ -136,21 +172,6 @@ async def report_dead():
     return await render_template(
         "link-report.html", m_id=m_id, title=title, thumb=thumb
     )
-
-
-@app.route("/submit/report/", methods=["POST"])
-async def parse_report():
-    try:
-        _mid = await request.form
-        mid = _mid["id"]
-        col = deadLinks(mid)
-        db.session.add(col)
-        db.session.commit()
-        return "Response recorded.Thank You for your help!"
-    except Exception as e:
-        print(e)
-        return "An unknown error occured during processing your request"
-    # raise e
 
 
 @app.route("/search")
@@ -496,10 +517,40 @@ async def redir():
     return await render_template("sites.html", url=url, site=site), 300
 
 
+@app.route("/admin/", methods=["POST", "GET"])
+async def randomstuff():
+    pw = os.environ.get("db_pass_insig") or open_and_read(".dbpass-insignificant")
+    if request.method == "GET":
+        return render_template("admin.html")
+    else:
+        form = await request.form
+        _pass = form["pass"]
+        session["admin-auth"] = _pass == pw
+    if not session["admin-auth"]:
+        resp = "bad-pass"
+    else:
+        resp = "ok"
+    return Response(json.dumps({"error": resp}), content_type="application/json")
+
+
+@app.route("/admin/get-data/", methods=["POST"])
+async def see_data():
+    form = await request.form
+    _type = form["type"]
+    _filter = [s for s in DataLytics.query.all() if s["type"] == _type.lower()]
+    data = {"data": _filter}
+    return Response(json.dumps(data), content_type="application/json")
+
+
 @app.route("/set-downloader/")
 async def set_dl():
     session["site-select"] = request.args.get("dl")
     return redirect(session["site-select"], status_code=301)
+
+
+def open_and_read(fn: str, mode: str = "r") -> str:
+    with open(fn, mode) as f:
+        return f.read().strip()
 
 
 if __name__ == "__main__":

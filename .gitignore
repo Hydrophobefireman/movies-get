@@ -28,6 +28,7 @@ MANIFEST
 static/jsbin/
 
 #CUSTOM
+.dbpass-insignificant
 .db-cache--all
 .player-cache/
 js-obfs.js
