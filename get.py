@@ -7,8 +7,7 @@ import secrets
 import threading
 import time
 import uuid
-from urllib.parse import quote
-
+from urllib.parse import quote, urlparse
 from flask_sqlalchemy import SQLAlchemy
 from htmlmin.minify import html_minify
 from quart import (
@@ -30,7 +29,15 @@ from flask_tools import flaskUtils
 app = Quart(__name__)
 flaskUtils(app)
 
-app.secret_key = "H(|hGh<;e"
+
+def open_and_read(fn: str, mode: str = "r") -> str:
+    with open(fn, mode) as f:
+        return f.read().strip()
+
+
+app.secret_key = os.environ.get("db_pass_insig") or open_and_read(
+    ".dbpass-insignificant"
+)
 dburl = os.environ.get("DATABASE_URL")
 
 try:
@@ -116,16 +123,6 @@ class deadLinks(db.Model):
 
     def __repr__(self):
         return "<Name %r>" % self.movieid
-
-
-@app.route("/beacons/dltcs/<path:r_id>/", methods=["POST"])
-async def add_action(r_id):
-    form = await request.form
-    data = form["action"]
-    col = DataLytics(data)
-    db.session.add(col)
-    db.session.commit()
-    return Response(json.dumps({"success": r_id}))
 
 
 @app.route("/submit/report/", methods=["POST"])
@@ -489,6 +486,7 @@ async def add_show():
 @app.route("/media/add-shows/fetch/")
 async def search_shows():
     show = request.args.get("s")
+    print(show)
     return Response(ippl_api.main_(term=show), content_type="application/json")
 
 
@@ -519,7 +517,8 @@ async def redir():
 
 @app.route("/admin/", methods=["POST", "GET"])
 async def randomstuff():
-    pw = os.environ.get("db_pass_insig") or open_and_read(".dbpass-insignificant")
+    pw = app.secret_key
+    print(pw)
     if request.method == "GET":
         return render_template("admin.html")
     else:
@@ -542,15 +541,35 @@ async def see_data():
     return Response(json.dumps(data), content_type="application/json")
 
 
+@app.route("/collect/", methods=["POST", "GET"])
+async def collect():
+    parsedurl = urlparse(request.url).netloc
+    if request.method == "POST":
+        _data = await request.data
+        data = json.loads(_data.decode())
+    else:
+        data = dict(request.args)
+    if "127.0.0.1" in parsedurl or "localhost" in parsedurl or "192.168." in parsedurl:
+        print("Local Env")
+        print(data)
+        return ""
+    col = DataLytics(data)
+    db.session.add(col)
+    db.session.commit()
+    return ""
+
+
+@app.route("/beacon-test", methods=["POST"])
+async def bcontest():
+    data = await request.form
+    print(data)
+    return ""
+
+
 @app.route("/set-downloader/")
 async def set_dl():
     session["site-select"] = request.args.get("dl")
     return redirect(session["site-select"], status_code=301)
-
-
-def open_and_read(fn: str, mode: str = "r") -> str:
-    with open(fn, mode) as f:
-        return f.read().strip()
 
 
 if __name__ == "__main__":

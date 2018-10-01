@@ -1,11 +1,6 @@
-String.prototype.trunc = function (n) {
-    return this.length > n ? `${this.substr(0, n - 1)}...` : this;
-};
-const dynamic_inp = document.getElementById("dynamic_inp");
-const inp_res = document.getElementById('inp-results');
-
 ((() => {
-
+    const dynamic_inp = document.getElementById('dynamic_inp'),
+        inp_res = document.getElementById('inp-results');
     if (!window.WebSocket) {
         return;
     }
@@ -41,6 +36,15 @@ const inp_res = document.getElementById('inp-results');
             const span = document.createElement('span');
             div.setAttribute('data-im', js.id);
             div.onclick = function () {
+                Beacon.send('/collect/', {
+                    type: 'movieclick',
+                    data: [{
+                        movie: js.movie,
+                        query: window.___currentWsMsg__,
+                    }],
+                    ua: navigator.userAgent,
+                    touch: (navigator.maxTouchPoints > 0)
+                })
                 window.location = `/movie/${this.getAttribute('data-im')}/watch/`;
             };
             div.style.cursor = 'pointer';
@@ -58,22 +62,26 @@ const inp_res = document.getElementById('inp-results');
             div.style.borderRadius = '5px';
         }
     };
-}))();
-
-window.onclick = ({target}) => {
-    if (target.className !== 'input_n' && target.className !== 'sock-res' && target != inp_res) {
-        inp_res.innerHTML = '';
-    }
-};
-
-function make_req({value}, ws) {
-    const str = value;
-    if (!check_inp(str)) {
-        return;
+    window.onclick = ({
+        target
+    }) => {
+        if (target.className !== 'input_n' && target.className !== 'sock-res' && target != inp_res) {
+            inp_res.innerHTML = '';
+        }
     };
-    ws.send(str);
-}
 
-function check_inp(str) {
-    return str.replace(/([^\w]|_)/g, '').length !== 0;
-}
+    function make_req({
+        value
+    }, ws) {
+        const str = value;
+        if (!check_inp(str)) {
+            return;
+        };
+        window.___currentWsMsg__ = str;
+        ws.send(str);
+    }
+
+    function check_inp(str) {
+        return str.replace(/([^\w]|_)/g, '').length !== 0;
+    }
+}))();
