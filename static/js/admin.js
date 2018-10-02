@@ -51,7 +51,7 @@
         });
         const _resp = await __data.json();
         const resp = _resp.response;
-        if (resp === 1 | resp === -1) {
+        if (resp === 1 || resp === -1) {
             btn.remove();
             inp.remove();
             paint_page()
