@@ -30,21 +30,27 @@ app = Quart(__name__)
 flaskUtils(app)
 
 
-def open_and_read(fn: str, mode: str = "r") -> str:
+def open_and_write(fn: str, mode: str = "w", data=None) -> None:
     with open(fn, mode) as f:
-        return f.read().strip()
+        f.write(data)
+    return
+
+
+def open_and_read(fn: str, mode: str = "r", strip: bool = True):
+    with open(fn, mode) as f:
+        if strip:
+            data = f.read().strip()
+        else:
+            data = f.read()
+    return data
 
 
 app.secret_key = os.environ.get("db_pass_insig") or open_and_read(
     ".dbpass-insignificant"
 )
-dburl = os.environ.get("DATABASE_URL")
-
 try:
-    if dburl is None:
-        with open(".dbinfo_", "r") as f:
-            dburl = f.read()
-except FileNotFoundError:
+    dburl = os.environ.get("DATABASE_URL") or open_and_read(".dbinfo_")
+except:
     raise Exception(
         "No DB url specified try add it to the environment or \
         create a .dbinfo_ file with the url"
@@ -54,6 +60,40 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
             (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
+
+
+def get_all_results(request_if_not_heroku=True, number=0, shuffle=True):
+    db_cache_file = os.path.join(app.root_path, ".db-cache--all")
+    jsdata = __data__ = []
+    data = None
+    if os.path.isfile(db_cache_file):
+        _data = open_and_read(db_cache_file)
+        try:
+            data = json.loads(_data).get("data").get("movies")
+            __data__ = data
+        except Exception as e:
+            print(e)
+    elif request_if_not_heroku:
+        _data = movieData.query.all()
+        for url in _data:
+            jsdata.append(
+                {
+                    "movie": url.moviedisplay,
+                    "id": url.mid,
+                    "thumb": url.thumb,
+                    "moviename": url.movie,
+                }
+            )
+        _meta = json.dumps({"stamp": time.time(), "data": {"movies": jsdata}})
+        open_and_write(db_cache_file, _meta)
+        __data__ = jsdata
+    else:
+        return []
+    if number:
+        return random.choices(__data__, k=number)
+    if shuffle:
+        random.shuffle(__data__)
+        return __data__
 
 
 class movieData(db.Model):
@@ -170,27 +210,7 @@ async def index():
 
 @app.route("/i/rec/")
 async def recommend():
-    data = []
-    try:
-        if os.path.isfile(".db-cache--all"):
-            with open(".db-cache--all") as f:
-                data = random.choices(
-                    json.loads(f.read()).get("data").get("movies"), k=5
-                )
-    except:
-        pass
-    if not data:
-        if is_heroku(request.url):
-            _data = random.choices(movieData.query.all(), k=5)
-            data = [
-                {
-                    "movie": s.moviedisplay,
-                    "moviename": s.movie,
-                    "id": s.mid,
-                    "thumb": s.thumb,
-                }
-                for s in _data
-            ]
+    data = get_all_results(False, number=5, shuffle=False)
     rec = json.dumps({"recommendations": data})
     return Response(rec, content_type="application/octet-stream")
 
@@ -244,39 +264,16 @@ async def socket_conn():
                 )
             )
             return
-        file = ".db-cache--all"
-        names = []
-        data = None
         json_data = {"data": []}
-        no_data = True
-        if os.path.isfile(file):
-            no_data = False
-            with open(file, "r") as f:
-                _data = f.read()
-            try:
-                data = json.loads(_data)
-                names = data["data"]["movies"]
-                cached = True
-            except:
-                no_data = True
-        if no_data:
-            cached = False
-            urls = movieData.query.all()
-            for url in urls:
-                names.append(
-                    {"movie": url.moviedisplay, "id": url.mid, "thumb": url.thumb}
-                )
+        names = get_all_results()
         json_data["data"] = [
             s for s in names if re.search(r".*?%s" % (query), s["movie"], re.IGNORECASE)
         ]
         if len(json_data["data"]) == 0:
             await websocket.send(json.dumps({"no-res": True}))
         else:
-            meta_ = {"stamp": time.time(), "data": {"movies": names}}
-            with open(file, "w") as fs:
-                fs.write(json.dumps(meta_))
             json_data["data"].sort(key=sort_dict)
-            await websocket.send(json.dumps({**json_data, "Cached": cached}))
+            await websocket.send(json.dumps({**json_data, "cached": "undefined"}))
 
 
 def sort_dict(el, key="movie"):
@@ -357,32 +354,9 @@ async def get_all():
     json_data["movies"] = []
     if session["req-all"] != forms:
         return "!cool"
-    if os.path.isfile(".db-cache--all"):
-        with open(".db-cache--all", "r") as f:
-            try:
-                cached_data = json.loads(f.read())
-                tst = cached_data.get("stamp")
-                if time.time() - float(tst) < 6000:
-                    print("Sending Cached Data")
-                    res = await make_response(json.dumps(cached_data.get("data")))
-                    res.headers["X-Sent-Cached"] = str(True)
-                    res.headers["Content-Type"] = "application/json"
-                    return res
-            except:
-                pass
-    urls = movieData.query.all()
-    random.shuffle(urls)
-    for url in urls:
-        json_data["movies"].append(
-            {"movie": url.moviedisplay, "id": url.mid, "thumb": url.thumb}
-        )
-    if len(json_data["movies"]) == 0:
-        return json.dumps({"no-res": True})
-    meta_ = {"stamp": time.time(), "data": json_data}
-    with open(".db-cache--all", "w") as fs:
-        fs.write(json.dumps(meta_))
+    movs = get_all_results(shuffle=True)
+    json_data["movies"] = movs
     res = await make_response(json.dumps(json_data))
-    res.headers["X-Sent-Cached"] = str(False)
     res.headers["Content-Type"] = "application/json"
     return res
 
