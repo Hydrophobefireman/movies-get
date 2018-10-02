@@ -170,6 +170,7 @@ async def index():
 
 @app.route("/i/rec/")
 async def recommend():
+    data = []
     try:
         if os.path.isfile(".db-cache--all"):
             with open(".db-cache--all") as f:
@@ -177,7 +178,7 @@ async def recommend():
                     json.loads(f.read()).get("data").get("movies"), k=5
                 )
     except:
-        data = []
+        pass
     if not data:
         if is_heroku(request.url):
             _data = random.choices(movieData.query.all(), k=5)
