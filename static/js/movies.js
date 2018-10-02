@@ -10,12 +10,14 @@ fetch(request)
     .then(response => response.text())
     .then(response => {
         Beacon.send('/collect/', {
-            ua: navigator.userAgent,
-            touch = (navigator.maxTouchPoints > 0),
             type: 'search',
-            data: [{
-                query: document.getElementById('jinja-data-query').getAttribute("content")
-            }]
+            main: {
+                ua: navigator.userAgent,
+                touch = (navigator.maxTouchPoints > 0),
+                data: [{
+                    query: document.getElementById('jinja-data-query').getAttribute("content")
+                }]
+            }
         })
         gen_results(response);
     }).catch(e => {

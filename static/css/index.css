@@ -18,6 +18,27 @@
     margin-top: 20px;
 }
 
+.img-box {
+    display: block;
+    text-align: center;
+    margin: 5px 10px;
+}
+
+.display-img {
+    height: 200px;
+    width: 150px;
+    cursor: pointer;
+    border-radius: 15px;
+}
+
+.text-box {
+    max-width: 150px;
+    display: grid;
+    text-align: center;
+    margin-top: 5px;
+    font-weight: bold;
+}
+
 .ipgs {
     -moz-border-radius: 20px;
     -webkit-border-radius: 20px;

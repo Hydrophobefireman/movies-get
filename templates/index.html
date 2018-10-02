@@ -1,54 +1,89 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
-    <meta name="og:title" content="Watch Movies for Free" />
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
-    <meta name="description" content="Watch Unlimited Movies For Free on movies-get!" />
-    <meta name='og:image' content="https://res.cloudinary.com/proxypy/image/upload/v1530529985/social-network-static.jpg" />
-    <meta name='og:site_name' content="movies-get" />
-    <meta name='og:description' content="Watch Unlimited Movies For Free on movies-get!" />
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <meta name="robots" content="index,follow" />
-    <title>Watch Movies on movies-get</title>
-    <link rel="stylesheet" href="/static/css/index.css" />
-    <script src='/static/jsmin/data.js'></script>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link href="/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+    <meta content="Watch Movies for Free" name="og:title" />
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" />
+    <meta content="Watch Unlimited Movies For Free on movies-get!" name="description" />
+    <meta content="https://res.cloudinary.com/proxypy/image/upload/v1530529985/social-network-static.jpg" name="og:image" />
+    <meta content="movies-get" name="og:site_name" />
+    <meta content="Watch Unlimited Movies For Free on movies-get!" name="og:description" />
+    <meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+    <meta content="index,follow" name="robots" />
+    <title>
+        Watch Movies on movies-get
+    </title>
+    <link href="/static/cssmin/index.css" rel="stylesheet" />
+    <script src="/static/jsmin/data.js">
+    </script>
+
 </head>
 
 <body>
     <div style="position:fixed;width:100%;top:0;margin-left:auto;margin-right:auto;padding: 8px;overflow: hidden;background: #333;text-align: center">
-        <a class=links id='all' href=/all> <span class='h-link'>All Movies</span>
+        <a class="links" href="/all" id="all">
+            <span class="h-link">
+                All Movies
+            </span>
         </a>
     </div>
-    <div class=center_stuff style="margin-top: 35px;">
-        <div id=content>
-            <div id=main>
+    <div class="center_stuff" style="margin-top: 35px;">
+        <div id="content">
+            <div id="main">
                 <div>
-                    <span>{{msg}}</span>
+                    <span>
+                        {{msg}}
+                    </span>
                 </div>
-                <div style="margin:10px">NEW! Add a new show to our databases by yourself
-                    <a href='/media/add/'>Here!</a>
+                <div style="margin:10px">
+                    NEW! Add a new show to our databases by yourself
+                    <a href="/media/add/">
+                        Here!
+                    </a>
                 </div>
-                <div class=help>Please Request The movie by clicking
-                    <a href='/help-us/'>Here</a>.It will be added shortly</div>
-                <span>Search for movies</span>
+                <div class="help">
+                    Please Request The movie by clicking
+                    <a href="/help-us/">
+                        Here
+                    </a>
+                    .It will be added shortly
+                </div>
+                <span>
+                    Search for movies
+                </span>
                 <form action="/search">
-                    <input class=input_n style="outline: none" type="text" name="q" id='dynamic_inp'>
-                    <input type="submit" id=fr-ui7-2-g11g class=submit-button style="width:10%;display: none" value='Go'>
-                    <div id='inp-results'></div>
-                    <button class=submit-button onclick="document.forms[0].submit()">Search</button>
+                    <input class="input_n" id="dynamic_inp" name="q" style="outline: none" type="text" />
+                    <input class="submit-button" id="fr-ui7-2-g11g" style="width:10%;display: none" type="submit" value="Go" />
+                    <div id="inp-results">
+                    </div>
+                    <button class="submit-button" onclick="document.forms[0].submit()">
+                        Search
+                    </button>
                 </form>
-                <div class=help>
-                    <span>Hi there! we are a new website that hopes to provide you with the movies you need..you can
+                <div class="help">
+                    <span>
+                        Hi there! we are a new website that hopes to provide you with the movies you need..you can
                         help us by
-                        <a href=/help-us/>requesting a movie or by providing a link to the movie!</a> </span> </div>
-                            <div class=recents>
+                        <a href="/help-us/?s">
+                            requesting a movie or by providing a link to the movie!
+                        </a>
+                    </span>
+                </div>
+                <div id="rec-text" style="display:none">
+                    <span>
+                        Check These Movies Out!
+                    </span>
+                </div>
+                <div id="recommend" style="display:none; margin: auto;text-align: center;">
+                    <div id="r-content" style="display: flex;flex-wrap: wrap; margin: auto;text-align: center;">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <script src='/static/jsmin/socket.js'></script>
+    <script src="/static/jsmin/socket.js"></script>
+    <script src='/static/jsmin/recommendations.js'></script>
 </body>
 
 </html>

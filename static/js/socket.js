@@ -38,12 +38,14 @@
             div.onclick = function () {
                 Beacon.send('/collect/', {
                     type: 'movieclick',
-                    data: [{
-                        movie: js.movie,
-                        query: window.___currentWsMsg__,
-                    }],
-                    ua: navigator.userAgent,
-                    touch: (navigator.maxTouchPoints > 0)
+                    main: {
+                        data: [{
+                            movie: js.movie,
+                            query: window.___currentWsMsg__,
+                        }],
+                        ua: navigator.userAgent,
+                        touch: (navigator.maxTouchPoints > 0)
+                    }
                 })
                 window.location = `/movie/${this.getAttribute('data-im')}/watch/`;
             };

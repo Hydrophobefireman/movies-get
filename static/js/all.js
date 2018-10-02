@@ -52,7 +52,9 @@ const gen_results = (names) => {
 const gen_img = (img, imgURL) => {
     const compat_url = window["URL"] || window["webkitURL"];
     const req = new Request(imgURL);
-    img.onload = ({target}) => {
+    img.onload = ({
+        target
+    }) => {
         compat_url.revokeObjectURL(target.src)
     }
     fetch(req)

@@ -88,12 +88,23 @@ def gen_rn():
     return random.randint(10, 17)
 
 
+def is_heroku(url):
+    parsedurl = urlparse(url).netloc
+    return (
+        "127.0.0.1" not in parsedurl
+        or "localhost" not in parsedurl
+        or "192.168." not in parsedurl
+    ) and "herokuapp" in parsedurl
+
+
 class DataLytics(db.Model):
     idx = db.Column(db.Integer, primary_key=True)
     actions = db.Column(db.PickleType)
+    _type = db.Column(db.String(100))
 
-    def __init__(self, act):
+    def __init__(self, _type, act):
         self.actions = act
+        self._type = _type
 
     def __repr__(self):
         return f"<DATA-ID:{self.idx}>"
@@ -153,7 +164,34 @@ async def index():
         d = "Thanks for helping us out!"
     else:
         d = " "
+
     return html_minify(await render_template("index.html", msg=d))
+
+
+@app.route("/i/rec/")
+async def recommend():
+    try:
+        if os.path.isfile(".db-cache--all"):
+            with open(".db-cache--all") as f:
+                data = random.choices(
+                    json.loads(f.read()).get("data").get("movies"), k=5
+                )
+    except:
+        data = []
+    if not data:
+        if is_heroku(request.url):
+            _data = random.choices(movieData.query.all(), k=5)
+            data = [
+                {
+                    "movie": s.moviedisplay,
+                    "moviename": s.movie,
+                    "id": s.mid,
+                    "thumb": s.thumb,
+                }
+                for s in _data
+            ]
+    rec = json.dumps({"recommendations": data})
+    return Response(rec, content_type="application/octet-stream")
 
 
 @app.route("/report")
@@ -166,8 +204,8 @@ async def report_dead():
         return "No movie associated with given id"
     thumb = meta_.thumb
     title = meta_.moviedisplay
-    return await render_template(
-        "link-report.html", m_id=m_id, title=title, thumb=thumb
+    return html_minify(
+        await render_template("link-report.html", m_id=m_id, title=title, thumb=thumb)
     )
 
 
@@ -480,7 +518,7 @@ async def add_():
 
 @app.route("/media/add/")
 async def add_show():
-    return await render_template("shows-add.html")
+    return html_minify(await render_template("shows-add.html"))
 
 
 @app.route("/media/add-shows/fetch/")
@@ -503,7 +541,9 @@ async def add_show_lookup():
         )
     thread = threading.Thread(target=ippl_api.get_, args=(_show_url, title))
     thread.start()
-    return await render_template("shows_add_evt.html", show_url=_show_url, show=title)
+    return html_minify(
+        await render_template("shows_add_evt.html", show_url=_show_url, show=title)
+    )
 
 
 @app.route("/out/")
@@ -512,48 +552,56 @@ async def redir():
     url = request.args.get("url")
     if url.startswith("//"):
         url = "https:" + url
-    return await render_template("sites.html", url=url, site=site), 300
+    return html_minify(await render_template("sites.html", url=url, site=site), 300)
 
 
 @app.route("/admin/", methods=["POST", "GET"])
 async def randomstuff():
     pw = app.secret_key
-    print(pw)
     if request.method == "GET":
-        return render_template("admin.html")
+        return html_minify(await render_template("admin.html"))
     else:
-        form = await request.form
-        _pass = form["pass"]
-        session["admin-auth"] = _pass == pw
-    if not session["admin-auth"]:
-        resp = "bad-pass"
-    else:
-        resp = "ok"
-    return Response(json.dumps({"error": resp}), content_type="application/json")
+        if not is_heroku(request.url):
+            print("Local")
+            session["admin-auth"] = True
+            resp = 1
+        else:
+            if session.get("admin-auth"):
+                return Response(json.dumps({"response": -1}))
+            form = await request.form
+            _pass = form["pass"]
+            session["admin-auth"] = _pass == pw
+            if not session["admin-auth"]:
+                resp = "0"
+            else:
+                resp = "1"
+    return Response(json.dumps({"response": resp}), content_type="application/json")
 
 
 @app.route("/admin/get-data/", methods=["POST"])
 async def see_data():
+    if not session.get("admin-auth"):
+        return Response(json.dumps({}))
+    _ = ("search", "moviewatch", "recommend", "movieclick")
     form = await request.form
-    _type = form["type"]
-    _filter = [s for s in DataLytics.query.all() if s["type"] == _type.lower()]
-    data = {"data": _filter}
+    _type_ = form["type"].lower()
+    _filter = [s.actions for s in DataLytics.query.filter_by(_type=_type_).all()]
+    data = {"result": _filter}
     return Response(json.dumps(data), content_type="application/json")
 
 
 @app.route("/collect/", methods=["POST", "GET"])
 async def collect():
-    parsedurl = urlparse(request.url).netloc
     if request.method == "POST":
         _data = await request.data
         data = json.loads(_data.decode())
     else:
         data = dict(request.args)
-    if "127.0.0.1" in parsedurl or "localhost" in parsedurl or "192.168." in parsedurl:
+    if not is_heroku(request.url):
         print("Local Env")
         print(data)
         return ""
-    col = DataLytics(data)
+    col = DataLytics(data["type"].lower(), data["main"])
     db.session.add(col)
     db.session.commit()
     return ""
@@ -561,8 +609,7 @@ async def collect():
 
 @app.route("/beacon-test", methods=["POST"])
 async def bcontest():
-    data = await request.form
-    print(data)
+    await request.data
     return ""
 
 

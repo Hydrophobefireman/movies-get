@@ -92,11 +92,14 @@ const btndata = (btn, btndl, url, linkdl) => {
         document.getElementById("ifr-bx").removeChild(ifr);
         Beacon.send('/collect/', {
             type: 'moviewatch',
-            data: [{
-                url: target.getAttribute("data")
-            }],
-            ua: navigator.userAgent,
-            touch: (navigator.maxTouchPoints > 0)
+            main: {
+                data: [{
+                    movie: document.querySelector('meta[name="movie"]').content,
+                    url: target.getAttribute("data")
+                }],
+                ua: navigator.userAgent,
+                touch: (navigator.maxTouchPoints > 0)
+            }
         })
         ifr.src = target.getAttribute("data");
         document.getElementById("ifr-bx").appendChild(ifr);

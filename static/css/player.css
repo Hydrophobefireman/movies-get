@@ -4,9 +4,9 @@
     border-radius: 5px;
     padding: 8px;
     border: none;
-    outline: none;
+    outline: 0;
     background: #3367d6;
-    color: white;
+    color: #fff;
     text-transform: uppercase;
     cursor: pointer;
     -webkit-touch-callout: none;
@@ -15,7 +15,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    margin-top: 20px;
+    margin-top: 20px
 }
 
 .input_n {
@@ -24,7 +24,7 @@
     border-radius: 15px;
     width: 45%;
     height: 30px;
-    padding: 8px;
+    padding: 8px
 }
 
 .submit-button {
@@ -33,9 +33,9 @@
     border-radius: 5px;
     padding: 8px;
     border: none;
-    outline: none;
+    outline: 0;
     background: #3367d6;
-    color: white;
+    color: #fff;
     text-transform: uppercase;
     cursor: pointer;
     -webkit-touch-callout: none;
@@ -44,13 +44,13 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    margin-top: 20px;
+    margin-top: 20px
 }
 
 .center_stuff {
     margin-left: auto;
     margin-right: auto;
-    text-align: center;
+    text-align: center
 }
 
 .ipg {
@@ -61,9 +61,9 @@
     margin-right: 5px;
     padding: 8px;
     border: none;
-    outline: none;
+    outline: 0;
     background: #3367d6;
-    color: white;
+    color: #fff;
     text-transform: uppercase;
     cursor: pointer;
     -webkit-touch-callout: none;
@@ -72,7 +72,7 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    margin-top: 20px;
+    margin-top: 20px
 }
 
 .ipg_s {
@@ -80,11 +80,11 @@
     -webkit-border-radius: 20px;
     border-radius: 20px;
     padding: 8px;
-    border: 2px solid #DFE1E5;
+    border: 2px solid #dfe1e5;
     width: auto;
-    outline: none;
+    outline: 0;
     margin-top: 20px;
-    background: white;
+    background: #fff;
     text-transform: uppercase;
     cursor: pointer;
     -webkit-touch-callout: none;
@@ -93,20 +93,20 @@
     -moz-user-select: none;
     -ms-user-select: none;
     user-select: none;
-    transition: 0.5s;
+    transition: .5s
 }
 
 .links {
     text-decoration: none;
-    color: #fff;
+    color: #fff
 }
 
 .links:hover {
-    border-bottom: 1px solid #e3e3e3;
+    border-bottom: 1px solid #e3e3e3
 }
 
 body {
-    font-family: 'Open Sans', 'sans-serif';
-    margin: 0px;
-    padding: 0px;
+    font-family: 'Open Sans', sans-serif;
+    margin: 0;
+    padding: 0
 }
