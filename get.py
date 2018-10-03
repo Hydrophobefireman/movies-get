@@ -85,7 +85,7 @@ def get_all_results(req_if_not_heroku=False, number=0, shuffle=True, url=None):
                 }
             )
         _meta = json.dumps({"stamp": time.time(), "data": {"movies": jsdata}})
-        open_and_write(db_cache_file, _meta)
+        open_and_write(db_cache_file, "w", _meta)
         __data__ = jsdata
     else:
         return []
@@ -545,7 +545,7 @@ async def randomstuff():
                 return Response(json.dumps({"response": -1}))
             form = await request.form
             _pass = form["pass"]
-            print(_pass,pw)
+            print(_pass, pw)
             session["admin-auth"] = _pass == pw
             if not session["admin-auth"]:
                 resp = "0"
