@@ -545,6 +545,7 @@ async def randomstuff():
                 return Response(json.dumps({"response": -1}))
             form = await request.form
             _pass = form["pass"]
+            print(_pass,pw)
             session["admin-auth"] = _pass == pw
             if not session["admin-auth"]:
                 resp = "0"
