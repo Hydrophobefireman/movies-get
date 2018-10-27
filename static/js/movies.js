@@ -6,9 +6,11 @@ const request = new Request("/dat" + "a/search/", {
     },
     body: params
 });
-fetch(request)
-    .then(response => response.text())
-    .then(response => {
+
+(async function () {
+    try {
+        const response = await fetch(request);
+        const response_1 = await response.text();
         Beacon.send('/collect/', {
             type: 'search',
             main: {
@@ -18,12 +20,13 @@ fetch(request)
                     query: document.getElementById('jinja-data-query').getAttribute("content")
                 }]
             }
-        })
-        gen_results(response);
-    }).catch(e => {
+        });
+        gen_results(response_1);
+    } catch (e) {
         console.log(e);
-        nores_()
-    })
+        nores_();
+    }
+})()
 
 const nores_ = () => {
     document.getElementById("main").style.display = 'none';
@@ -55,7 +58,7 @@ const gen_results = (names) => {
     }
 }
 
-const gen_img = (img, imgURL) => {
+const gen_img = async (img, imgURL) => {
     const compat_url = window["URL"] || window["webkitURL"];
     const req = new Request(imgURL);
     img.onload = ({
@@ -63,11 +66,9 @@ const gen_img = (img, imgURL) => {
     }) => {
         compat_url.revokeObjectURL(target.src)
     }
-    fetch(req)
-        .then(response => response.blob())
-        .then(blob => compat_url.createObjectURL(blob))
-        .then(res => {
-            img.src = res;
-            img.style.backgroundColor = '';
-        });
+    const response = await fetch(req);
+    const blob = await response.blob();
+    const res = compat_url.createObjectURL(blob);
+    img.src = res;
+    img.style.backgroundColor = '';
 };

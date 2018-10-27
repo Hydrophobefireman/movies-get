@@ -1,4 +1,4 @@
-const start = (params) => {
+const start = async (params) => {
     const request = new Request("/dat" + "a/specs/", {
         method: "POST",
         headers: {
@@ -7,14 +7,14 @@ const start = (params) => {
         body: `q=${params}`,
         credentials: 'include'
     });
-    fetch(request)
-        .then(response => response.text())
-        .then(response => {
-            gen_results(response);
-        }).catch(e => {
-            console.warn(e);
-            nores_()
-        })
+    try {
+        const response = await fetch(request);
+        const response_1 = await response.text();
+        gen_results(response_1);
+    } catch (e) {
+        console.warn(e);
+        nores_();
+    }
 }
 
 const nores_ = () => {
@@ -49,7 +49,7 @@ const gen_results = (names) => {
     }
 }
 
-const gen_img = (img, imgURL) => {
+const gen_img = async (img, imgURL) => {
     const compat_url = window["URL"] || window["webkitURL"];
     const req = new Request(imgURL);
     img.onload = ({
@@ -57,16 +57,14 @@ const gen_img = (img, imgURL) => {
     }) => {
         compat_url.revokeObjectURL(target.src)
     }
-    fetch(req)
-        .then(response => response.blob())
-        .then(blob => compat_url.createObjectURL(blob))
-        .then(res => {
-            img.src = res;
-            img.style.backgroundColor = '';
-        });
+    const response = await fetch(req);
+    const blob = await response.blob();
+    const res = compat_url.createObjectURL(blob);
+    img.src = res;
+    img.style.backgroundColor = '';
 };
 
-const fetch_2 = data => {
+const fetch_2 = async data => {
     const _params = `data=${encodeURIComponent(data)}`;
     const reqs = new Request('/fetch-token/links/post/', {
         method: "POST",
@@ -76,13 +74,13 @@ const fetch_2 = data => {
         body: _params,
         credentials: 'include'
     });
-    fetch(reqs).then(ret => ret.json()).then(retcode => {
-        data = retcode['id'];
-        setTimeout(start(data), 700);
-    })
+    const ret = await fetch(reqs);
+    const retcode = await ret.json();
+    data = retcode['id'];
+    setTimeout(start(data), 700);
 }
 
-((data) => {
+(async (data) => {
     params = `data=${encodeURIComponent(data)}&rns=${btoa(Math.random().toString())}`;
     console.log(params)
     const reqs = new Request('/fetch-token/configs/', {
@@ -93,8 +91,8 @@ const fetch_2 = data => {
         credentials: 'include',
         body: params
     });
-    fetch(reqs).then(ret => ret.json()).then(retcode => {
-        data = retcode['id'];
-        fetch_2(data);
-    })
+    const ret = await fetch(reqs);
+    const retcode = await ret.json();
+    data = retcode['id'];
+    fetch_2(data);
 })(window.__data)

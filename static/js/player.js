@@ -29,12 +29,11 @@ const start_player = (key) => {
             build_player(data, key);
         }
     }
-    xhr.onerror = () => {
+    xhr.onerror = async () => {
         const ifr = document.getElementById("player-frame");
-        fetch("/error-configs/")
-            .then(response => response.blob()).then(ret => {
-                ifr.src = window.URL.createObjectURL(ret);
-            })
+        const response = await fetch("/error-configs/");
+        const ret = await response.blob();
+        ifr.src = window.URL.createObjectURL(ret);
     }
     xhr.send(params);
 }

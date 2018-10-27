@@ -21,7 +21,6 @@ from quart import (
     session,
     websocket,
 )
-
 from api import ippl_api
 from dbmanage import req_db
 from flask_tools import flaskUtils
@@ -245,6 +244,7 @@ async def ask_get():
 @app.websocket("/suggestqueries")
 async def socket_conn():
     start_time = time.time()
+    print(vars(websocket))
     while 1:
         query = await websocket.receive()
         if (time.time() - start_time) >= 300:
@@ -267,7 +267,9 @@ async def socket_conn():
         json_data = {"data": []}
         names = get_all_results(req_if_not_heroku=False, url=websocket.url)
         json_data["data"] = [
-            s for s in names if re.search(r".*?%s" % (query), s["movie"], re.IGNORECASE)
+            s
+            for s in names
+            if re.search(r".*?%s" % (re.escape(query)), s["movie"], re.IGNORECASE)
         ]
         if len(json_data["data"]) == 0:
             await websocket.send(json.dumps({"no-res": True}))
