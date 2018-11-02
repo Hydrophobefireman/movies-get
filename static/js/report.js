@@ -16,7 +16,7 @@ repo.appendChild(img);
 
 repo.appendChild(img);
 const txtel = document.createElement("div");
-txtel.innerHTML = `Report for movie ${window._title}`?;
+txtel.innerHTML = `Report for movie ${window._title}?`;
 repo.appendChild(txtel);
 document.getElementById("sbmit-report").onclick = () => {
     const report = new Request("/submit/report/", {

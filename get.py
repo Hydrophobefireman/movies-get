@@ -198,7 +198,7 @@ def is_heroku(url):
         "127.0.0.1" not in parsedurl
         or "localhost" not in parsedurl
         or "192.168." not in parsedurl
-    ) and "herokuapp" in parsedurl
+    ) and ("herokuapp" in parsedurl or "ws://app_server/" in url)
 
 
 class DataLytics(db.Model):
@@ -322,7 +322,6 @@ async def ask_get():
 @app.websocket("/suggestqueries")
 async def socket_conn():
     start_time = time.time()
-    print(vars(websocket))
     while 1:
         query = await websocket.receive()
         if (time.time() - start_time) >= 300:
