@@ -1,6 +1,6 @@
 const repo = document.getElementById("report-box");
 const compat_url = window["URL"] || window["webkitURL"];
-const req = new Request("{{thumb|safe}}");
+const req = new Request(document.querySelector("meta[name='og:image']").content);
 const img = document.createElement("img");
 img.style.height = '200px';
 img.style.width = '150px;'
