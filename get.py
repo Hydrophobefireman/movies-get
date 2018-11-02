@@ -13,7 +13,7 @@ from urllib.parse import quote, urlparse
 
 from bs4 import BeautifulSoup as bs
 from flask_sqlalchemy import SQLAlchemy
-from htmlmin.minify import html_minify
+
 from quart import (
     Quart,
     Response,
@@ -138,7 +138,7 @@ def resolve_local_url(url):
 
 
 def parse_local_assets(html):
-    soup = bs(html, "html5lib")
+    soup = bs(html, "html.parser")
     assets = soup.find_all(
         lambda x: (
             x.name == "script"
@@ -269,7 +269,7 @@ async def index():
     else:
         d = " "
 
-    return parse_local_assets(html_minify(await render_template("index.html", msg=d)))
+    return parse_local_assets(await render_template("index.html", msg=d))
 
 
 @app.route("/i/rec/")
@@ -297,11 +297,7 @@ async def report_dead():
     thumb = meta_.thumb
     title = meta_.moviedisplay
     return parse_local_assets(
-        html_minify(
-            await render_template(
-                "link-report.html", m_id=m_id, title=title, thumb=thumb
-            )
-        )
+        await render_template("link-report.html", m_id=m_id, title=title, thumb=thumb)
     )
 
 
@@ -310,13 +306,13 @@ async def send_m():
     if request.args.get("q") is None or not re.sub(r"[^\w]", "", request.args.get("q")):
         return "Specify a term!"
     return parse_local_assets(
-        html_minify(await render_template("movies.html", q=request.args.get("q")))
+        await render_template("movies.html", q=request.args.get("q"))
     )
 
 
 @app.route("/help-us/")
 async def ask_get():
-    return parse_local_assets(html_minify(await render_template("help.html")))
+    return parse_local_assets(await render_template("help.html"))
 
 
 @app.websocket("/suggestqueries")
@@ -409,7 +405,7 @@ async def err_configs():
 async def all_movies():
     session["req-all"] = (generate_id() + generate_id())[:20]
     return parse_local_assets(
-        html_minify(await render_template("all.html", data=session["req-all"]))
+        await render_template("all.html", data=session["req-all"])
     )
 
 
@@ -466,14 +462,12 @@ async def send_movie(mid, mdata):
                     data = json.loads(f.read())
                     res = await make_response(
                         parse_local_assets(
-                            html_minify(
-                                await render_template(
-                                    "player.html",
-                                    nonce=session["req_nonce"],
-                                    movie=data["movie_name"],
-                                    og_url=request.url,
-                                    og_image=data["thumbnail"],
-                                )
+                            await render_template(
+                                "player.html",
+                                nonce=session["req_nonce"],
+                                movie=data["movie_name"],
+                                og_url=request.url,
+                                og_image=data["thumbnail"],
                             )
                         )
                     )
@@ -500,14 +494,12 @@ async def send_movie(mid, mdata):
         f.write(json.dumps(data_js))
     res = await make_response(
         parse_local_assets(
-            html_minify(
-                await render_template(
-                    "player.html",
-                    nonce=session["req_nonce"],
-                    movie=movie_name,
-                    og_url=request.url,
-                    og_image=thumbnail,
-                )
+            await render_template(
+                "player.html",
+                nonce=session["req_nonce"],
+                movie=movie_name,
+                og_url=request.url,
+                og_image=thumbnail,
             )
         )
     )
@@ -557,7 +549,7 @@ async def plugin():
 
 @app.route("/no-result/")
 async def b404():
-    return html_minify(await render_template("no-result.html"))
+    return await render_template("no-result.html")
 
 
 @app.route("/sec/add/", methods=["POST"])
@@ -578,7 +570,7 @@ async def add_():
 
 @app.route("/media/add/")
 async def add_show():
-    return parse_local_assets(html_minify(await render_template("shows-add.html")))
+    return parse_local_assets(await render_template("shows-add.html"))
 
 
 @app.route("/media/add-shows/fetch/")
@@ -602,9 +594,7 @@ async def add_show_lookup():
     thread = threading.Thread(target=ippl_api.get_, args=(_show_url, title))
     thread.start()
     return parse_local_assets(
-        html_minify(
-            await render_template("shows_add_evt.html", show_url=_show_url, show=title)
-        )
+        await render_template("shows_add_evt.html", show_url=_show_url, show=title)
     )
 
 
@@ -614,8 +604,9 @@ async def redir():
     url = request.args.get("url")
     if url.startswith("//"):
         url = "https:" + url
-    return parse_local_assets(
-        html_minify(await render_template("sites.html", url=url, site=site), 300)
+    return (
+        parse_local_assets(await render_template("sites.html", url=url, site=site)),
+        300,
     )
 
 
@@ -623,7 +614,7 @@ async def redir():
 async def randomstuff():
     pw = app.secret_key
     if request.method == "GET":
-        return parse_local_assets(html_minify(await render_template("admin.html")))
+        return parse_local_assets(await render_template("admin.html"))
     else:
         if not is_heroku(request.url):
             print("Local")
