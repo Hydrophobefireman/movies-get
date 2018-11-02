@@ -1,1 +1,1 @@
-web: hypercorn get:app -k 5 -b 0.0.0.0:$PORT
+web: bin/start-nginx exec hypercorn get:app --workers 4 --keep-alive 500 -b unix:/tmp/nginx.socket

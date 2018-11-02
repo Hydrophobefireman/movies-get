@@ -28,10 +28,8 @@ from quart import (
 
 from api import ippl_api
 from dbmanage import req_db
-from flask_tools import flaskUtils
 
 app = Quart(__name__)
-flaskUtils(app)
 
 
 def open_and_write(fn: str, mode: str = "w", data=None) -> None:
@@ -279,6 +277,13 @@ async def recommend():
     data = get_all_results(False, number=5, shuffle=False, url=request.url)
     rec = json.dumps({"recommendations": data})
     return Response(rec, content_type="application/octet-stream")
+
+
+@app.route("/favicon.ico")
+async def send_fav():
+    return await send_from_directory(
+        os.path.join(app.root_path, "static"), "favicon.ico"
+    )
 
 
 @app.route("/report")
@@ -678,6 +683,10 @@ async def bcontest():
 async def set_dl():
     session["site-select"] = request.args.get("dl")
     return redirect(session["site-select"], status_code=301)
+
+
+# for heroku nginx
+open("/tmp/app-initialized", "w").close()
 
 
 if __name__ == "__main__":
