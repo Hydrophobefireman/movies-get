@@ -25,7 +25,6 @@ from quart import (
     session,
     websocket,
 )
-
 from api import ippl_api
 from dbmanage import req_db
 
@@ -676,8 +675,9 @@ async def set_dl():
 
 
 # for heroku nginx
-time.sleep(2)
-open("/tmp/app-initialized", "w").close()
+@app.before_serving
+def open_to_nginx():
+    open("/tmp/app-initialized", "w").close()
 
 
 if __name__ == "__main__":
