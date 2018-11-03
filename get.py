@@ -676,7 +676,7 @@ async def set_dl():
 
 
 # for heroku nginx
-time.slee(2)
+time.sleep(2)
 open("/tmp/app-initialized", "w").close()
 
 
