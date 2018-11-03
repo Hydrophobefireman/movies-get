@@ -13,7 +13,16 @@ const extractHostname = (url) => {
         return 'null'
     }
 }
-
+Beacon.send('/collect/', {
+    type: 'moviewatch',
+    main: {
+        data: [{
+            movie: document.querySelector('meta[name="movie"]').content,
+        }],
+        ua: navigator.userAgent,
+        touch: (navigator.maxTouchPoints > 0)
+    }
+})
 const movie_id = window.location.pathname.split("/")[2];
 const keys = "set-id";
 
@@ -89,17 +98,6 @@ const btndata = (btn, btndl, url, linkdl) => {
     }) => {
         const ifr = document.getElementById("player-frame");
         document.getElementById("ifr-bx").removeChild(ifr);
-        Beacon.send('/collect/', {
-            type: 'moviewatch',
-            main: {
-                data: [{
-                    movie: document.querySelector('meta[name="movie"]').content,
-                    url: target.getAttribute("data")
-                }],
-                ua: navigator.userAgent,
-                touch: (navigator.maxTouchPoints > 0)
-            }
-        })
         ifr.src = target.getAttribute("data");
         document.getElementById("ifr-bx").appendChild(ifr);
     }
