@@ -52,7 +52,9 @@ def main_(term=None, s_url=None):
             ret_data["shows"].append({"title": tag.attrs.get("title"), "url": u})
     return json.dumps(ret_data)
 
-
+def val_url(url):
+	u=urlp_(url)
+	return re.search(r"openload|streamango|estream|vidzi|megadrive|yourupload",u.netloc)
 def get_(url, v=True):
     url = base64.b64decode(codecs.encode(url[::-1], "rot13").encode()).decode()
     ua = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
@@ -125,6 +127,7 @@ def get_(url, v=True):
     thumbnail = soup.find("input", attrs={"name": "phimimg"}).attrs["value"]
     to_screen(["[debug]Found", thumbnail], v)
     to_screen(["[debug]Fetching Thumbnail and uploading to cdn"], v)
+    data=[i for i in filter(val_url,data)]
     while len(data) > 3:
         p_print(data)
         dt_n = input("[info]Enter the number of the url to remove from the List:")
