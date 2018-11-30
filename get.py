@@ -9,7 +9,7 @@ import shutil
 import threading
 import time
 import uuid
-from urllib.parse import quote, urlparse
+from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup as bs
 from flask_sqlalchemy import SQLAlchemy
@@ -25,6 +25,7 @@ from quart import (
     session,
     websocket,
 )
+from typing import Optional
 from api import ippl_api
 from dbmanage import req_db
 
@@ -38,6 +39,8 @@ def open_and_write(fn: str, mode: str = "w", data=None) -> None:
 
 
 def open_and_read(fn: str, mode: str = "r", strip: bool = True):
+    if not os.path.isfile(fn):
+        return None
     with open(fn, mode) as f:
         if strip:
             data = f.read().strip()
@@ -181,9 +184,9 @@ def checksum_f(filename, meth="sha256"):
     return foo.hexdigest()
 
 
-def generate_id() -> str:
-    lst_ = secrets.token_urlsafe()
-    return lst_[: gen_rn()]
+def generate_id(n=None) -> str:
+    lst_ = secrets.token_urlsafe(n)
+    return lst_[: n or gen_rn()]
 
 
 def gen_rn():
@@ -261,21 +264,36 @@ async def check__():
     )
 
 
+@app.route("/api/gen_204/")
+async def _start_frontend():
+    return Response("", status=204)
+
+
+@app.errorhandler(404)
+async def err(err):
+    return await render_template("index.html"), 200
+
+
 @app.route("/")
 async def index():
-    if session.get("req-data"):
-        d = "Thanks for helping us out!"
-    else:
-        d = " "
-
-    return parse_local_assets(await render_template("index.html", msg=d))
+    return await render_template("index.html")
 
 
 @app.route("/i/rec/")
 async def recommend():
     data = get_all_results(False, number=5, shuffle=False, url=request.url)
     rec = json.dumps({"recommendations": data})
-    return Response(rec, content_type="application/octet-stream")
+    return Response(rec, content_type="application/json")
+
+
+@app.after_request
+async def resp_headers(resp):
+    if "localhost" in request.headers.get("origin", ""):
+        resp.headers["access-control-allow-origin"] = request.headers["origin"]
+    else:
+        resp.headers["access-control-allow-origin"] = "https://movies.pycode.tk"
+    resp.headers["access-control-allow-credentials"] = "true"
+    return resp
 
 
 @app.route("/favicon.ico")
@@ -285,73 +303,45 @@ async def send_fav():
     )
 
 
-@app.route("/report")
-async def report_dead():
-    m_id = request.args.get("id")
-    if m_id is None:
-        return "No movie id specified"
-    meta_ = movieData.query.filter_by(mid=m_id).first()
-    if meta_ is None:
-        return "No movie associated with given id"
-    thumb = meta_.thumb
-    title = meta_.moviedisplay
-    return parse_local_assets(
-        await render_template("link-report.html", m_id=m_id, title=title, thumb=thumb)
-    )
-
-
-@app.route("/search")
-async def send_m():
-    if request.args.get("q") is None or not re.sub(r"[^\w]", "", request.args.get("q")):
-        return "Specify a term!"
-    return parse_local_assets(
-        await render_template("movies.html", q=request.args.get("q"))
-    )
-
-
-@app.route("/help-us/")
-async def ask_get():
-    return parse_local_assets(await render_template("help.html"))
-
-
 @app.websocket("/suggestqueries")
 async def socket_conn():
-    start_time = time.time()
     while 1:
         query = await websocket.receive()
-        if (time.time() - start_time) >= 300:
-            print("E")
-            await websocket.send(
-                json.dumps(
-                    {
-                        "data": [
-                            {
-                                "timeout": True,
-                                "movie": "Please Refresh Your Browser..connection timed out",
-                                "id": "_",
-                                "thumbnail": "no",
-                            }
-                        ]
-                    }
-                )
-            )
-            return
-        json_data = {"data": []}
-        names = get_all_results(req_if_not_heroku=False, url=websocket.url)
-        json_data["data"] = [
-            s
-            for s in names
-            if re.search(r".*?%s" % (re.escape(query)), s["movie"], re.IGNORECASE)
-        ]
-        if len(json_data["data"]) == 0:
-            await websocket.send(json.dumps({"no-res": True}))
+        if query == "ping":
+            await websocket.send("pong")
         else:
-            json_data["data"].sort(key=sort_dict)
-            await websocket.send(json.dumps({**json_data, "cached": "undefined"}))
+            json_data = {"data": []}
+            names = get_all_results(req_if_not_heroku=False, url=websocket.url)
+            json_data["data"] = [
+                s
+                for s in names
+                if re.search(
+                    (re.sub(r"[^\w]", "", query)), s["moviename"], re.IGNORECASE
+                )
+            ]
+            if len(json_data["data"]) == 0:
+                await websocket.send(json.dumps({"no-res": True}))
+            else:
+                json_data["data"].sort(key=sort_dict)
+                await websocket.send(json.dumps({**json_data, "cached": "undefined"}))
 
 
 def sort_dict(el, key="movie"):
     return el.get(key)
+
+
+@app.route("/api/request/", methods=["POST"])
+async def api_req_m():
+    _form = await request.form
+    movie = _form.get("movie")
+    if not re.sub(r"\s", "", movie):
+        print("No movie Given")
+        return "NO"
+    url = _form.get("url")
+    data = (movie, url)
+    a = req_db(data)
+    print(a)
+    return "OK"
 
 
 @app.route("/db-manage/parse-requests/", methods=["POST"])
@@ -395,17 +385,11 @@ async def serchs():
     return Response(json.dumps(json_data), content_type="application/json")
 
 
-@app.route("/error-configs/")
-async def err_configs():
-    return await render_template("err.html")
-
-
-@app.route("/all/")
-async def all_movies():
-    session["req-all"] = (generate_id() + generate_id())[:20]
-    return parse_local_assets(
-        await render_template("all.html", data=session["req-all"])
-    )
+@app.route("/api/all/")
+async def get_token():
+    token = (generate_id() + generate_id())[:20]
+    session["req-all"] = token
+    return Response(json.dumps({"token": token}), content_type="application/json")
 
 
 @app.route("/fetch-token/configs/", methods=["POST"])
@@ -413,11 +397,12 @@ async def gen_conf():
     _data = await request.form
     data = _data["data"]
     rns = _data["rns"]
-    if data != session["req-all"]:
+    if data != session.get("req-all"):
         return "lol"
-    session["req-all"] = (generate_id() + rns + generate_id())[:20]
+    session.pop("req-all")
+    session["fetch-token"] = (generate_id() + rns + generate_id())[:20]
     return Response(
-        json.dumps({"id": session["req-all"], "rns": rns}),
+        json.dumps({"id": session["fetch-token"], "rns": rns}),
         content_type="application/json",
     )
 
@@ -428,8 +413,9 @@ async def get_all():
     _forms = await request.form
     forms = _forms["q"]
     json_data["movies"] = []
-    if session["req-all"] != forms:
+    if session.get("data-specs") != forms:
         return "!cool"
+    session.pop("data-specs")
     movs = get_all_results(shuffle=True, url=request.url)
     json_data["movies"] = movs
     res = await make_response(json.dumps(json_data))
@@ -441,69 +427,66 @@ async def get_all():
 async def s_confs():
     _data = await request.form
     data = _data["data"]
-    if data != session["req-all"]:
+    if data != session.get("fetch-token"):
         return "No"
-    session["req-all"] = (generate_id() + generate_id())[:20]
+    session.pop("fetch-token")
+    session["data-specs"] = generate_id(30)
     return Response(
-        json.dumps({"id": session["req-all"]}), content_type="application/json"
+        json.dumps({"id": session["data-specs"]}), content_type="application/json"
     )
 
 
-@app.route("/movie/<mid>/<mdata>/")
-async def send_movie(mid, mdata):
-    if mid is None:
-        return "Nope"
-    session["req_nonce"] = generate_id()
-    if os.path.isdir(".player-cache"):
-        if os.path.isfile(os.path.join(".player-cache", mid + ".json")):
-            with open(os.path.join(".player-cache", mid + ".json"), "r") as f:
-                try:
-                    data = json.loads(f.read())
-                    res = await make_response(
-                        parse_local_assets(
-                            await render_template(
-                                "player.html",
-                                nonce=session["req_nonce"],
-                                movie=data["movie_name"],
-                                og_url=request.url,
-                                og_image=data["thumbnail"],
-                            )
-                        )
-                    )
-                    res.headers["X-Sent-Cached"] = str(True)
-                    print("Sending Cached Data")
-                    return res
-                except:
-                    pass
-    else:
-        os.mkdir(".player-cache")
-    meta_ = movieData.query.filter_by(mid=mid).first()
-    if meta_ is None:
-        return "No movie associated with given id"
-    movie_name = meta_.moviedisplay
-    thumbnail = meta_.thumb
-    with open(os.path.join(".player-cache", mid + ".json"), "w") as f:
-        data_js = {
-            "movie_name": movie_name,
-            "thumbnail": thumbnail,
-            "url": meta_.url,
-            "alt1": meta_.alt1,
-            "alt2": meta_.alt2,
-        }
-        f.write(json.dumps(data_js))
-    res = await make_response(
-        parse_local_assets(
-            await render_template(
-                "player.html",
-                nonce=session["req_nonce"],
-                movie=movie_name,
-                og_url=request.url,
-                og_image=thumbnail,
-            )
+@app.route("/api/movie/", methods=["POST"])
+async def _frontend_movie():
+    ct = "application/json"
+    data: str
+
+    form = await request.form
+    idx: Optional[str] = form.get("id")
+    if not idx:
+        return Response(
+            json.dumps({"error": "no id provided"}), content_type=ct, status=400
         )
-    )
-    res.headers["X-Sent-Cached"] = str(False)
-    return res
+
+    _data: Optional[dict] = _get_data_from_player_cache(idx)
+    if not _data:
+        meta_ = movieData.query.filter_by(mid=idx).first()
+        if not meta_:
+            return Response(json.dumps({"error": "_nomovie_"}), content_type=ct)
+        movie_name: str = meta_.moviedisplay
+        thumbnail: str = meta_.thumb
+        data = json.dumps(
+            {
+                "movie_name": movie_name,
+                "thumbnail": thumbnail,
+                "url": meta_.url,
+                "alt1": meta_.alt1,
+                "alt2": meta_.alt2,
+            }
+        )
+
+        open_and_write(os.path.join(".player-cache", f"{idx}.json"), "w", data)
+    else:
+        data = json.dumps(_data)
+    return Response(data, content_type=ct)
+
+
+def _get_data_from_player_cache(mid: str) -> dict:
+    fp = os.path.join(".player-cache", f"{mid}.json")
+    f = open_and_read(fp)
+    if not f:
+        return None
+    try:
+        data = json.loads(f)
+        return {
+            "movie_name": data["movie_name"],
+            "thumbnail": data["thumbnail"],
+            "url": data["url"],
+            "alt1": data["alt1"],
+            "alt2": data["alt2"],
+        }
+    except:
+        return None
 
 
 @app.route("/data-parser/plugins/player/", methods=["POST"])
@@ -546,11 +529,6 @@ async def plugin():
     return res
 
 
-@app.route("/no-result/")
-async def b404():
-    return await render_template("no-result.html")
-
-
 @app.route("/sec/add/", methods=["POST"])
 async def add_():
     try:
@@ -567,11 +545,6 @@ async def add_():
         return "Malformed Input"
 
 
-@app.route("/media/add/")
-async def add_show():
-    return parse_local_assets(await render_template("shows-add.html"))
-
-
 @app.route("/media/add-shows/fetch/")
 async def search_shows():
     show = request.args.get("s")
@@ -579,37 +552,29 @@ async def search_shows():
     return Response(ippl_api.main_(term=show), content_type="application/json")
 
 
-@app.route("/add/tv-show/lookup")
-async def add_show_lookup():
+@app.route("/api/add/tv-show/lookup")
+async def frontend_add_show_lookup():
     _show_url = request.args.get("s")
     title = request.args.get("t", "")
     q = re.sub(r"([^\w]|_)", "", title).lower()
     urls = movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
     if len(urls) > 0:
-        return (
-            "We already have a show with similar name..to prevent multiple copies of the same show..please request this show to be manually added",
-            403,
-        )
+        return "We already have a movie with similar name..to prevent multiple copies of the same movie..please request this show to be manually added"
     thread = threading.Thread(target=ippl_api.get_, args=(_show_url, title))
     thread.start()
-    return parse_local_assets(
-        await render_template("shows_add_evt.html", show_url=_show_url, show=title)
-    )
+    return "OK"
 
 
-@app.route("/out/")
-async def redir():
+@app.route("/api/out/")
+async def _frontend_redir():
     site = session.get("site-select")
     url = request.args.get("url")
     if url.startswith("//"):
         url = "https:" + url
-    return (
-        parse_local_assets(await render_template("sites.html", url=url, site=site)),
-        300,
-    )
+    return Response(json.dumps({"site": site, "url": url}))
 
 
-@app.route("/admin/", methods=["POST", "GET"])
+"""@app.route("/admin/", methods=["POST", "GET"])
 async def randomstuff():
     pw = app.secret_key
     if request.method == "GET":
@@ -631,6 +596,8 @@ async def randomstuff():
             else:
                 resp = "1"
     return Response(json.dumps({"response": resp}), content_type="application/json")
+
+"""
 
 
 @app.route("/admin/get-data/", methods=["POST"])
@@ -681,4 +648,5 @@ def open_to_nginx():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", use_reloader=True)
+    app.run(host="0.0.0.0", use_reloader=True)
+
