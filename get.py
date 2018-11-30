@@ -30,6 +30,8 @@ from api import ippl_api
 from dbmanage import req_db
 
 app = Quart(__name__)
+if not os.path.isdir(".player-cache"):
+    os.mkdir(".player-cache")
 
 
 def open_and_write(fn: str, mode: str = "w", data=None) -> None:
