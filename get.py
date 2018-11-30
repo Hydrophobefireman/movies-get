@@ -278,6 +278,8 @@ async def err(err):
 
 @app.route("/")
 async def index():
+    if "localhost" not in request.headers.get("origin", ""):
+        return redirect("https://movies.pycode.tk")
     return await render_template("index.html")
 
 
