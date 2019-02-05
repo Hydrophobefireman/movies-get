@@ -1,18 +1,14 @@
 import base64
-import hashlib
 import json
 import os
 import random
 import re
 import secrets
-import shutil
 import threading
 import time
-import uuid
 from typing import Optional
 from urllib.parse import urlparse
 
-from bs4 import BeautifulSoup as bs
 from flask_sqlalchemy import SQLAlchemy
 from quart import (
     Quart,
@@ -26,7 +22,10 @@ from quart import (
     websocket,
 )
 
-from api import ippl_api
+try:
+    from api import ippl_api
+except ImportError:
+    pass
 from dbmanage import req_db
 from set_env import set_env_vars
 
@@ -101,6 +100,7 @@ def get_all_results(req_if_not_heroku=False, number=0, shuffle=True, url=None):
 
 
 class movieData(db.Model):
+    # pylint: disable=E1101
     mid = db.Column(db.String, primary_key=True)
     movie = db.Column(db.String(100))
     moviedisplay = db.Column(db.String(100))
@@ -109,7 +109,7 @@ class movieData(db.Model):
     alt2 = db.Column(db.String(1000))
     thumb = db.Column(db.String(1000))
     subs = db.Column(db.LargeBinary)
-
+    # pylint: enable=E1101
     def __init__(self, movie, url, alt1, alt2, thumb, subs=b""):
         self.mid = generate_id()
         self.movie = re.sub(r"\s", "", movie).lower()
@@ -144,9 +144,11 @@ def is_heroku(url):
 
 
 class DataLytics(db.Model):
+    # pylint: disable=E1101
     idx = db.Column(db.Integer, primary_key=True)
     actions = db.Column(db.PickleType)
     _type = db.Column(db.String(100))
+    # pylint: enable=E1101
 
     def __init__(self, _type, act):
         self.actions = act
@@ -157,10 +159,11 @@ class DataLytics(db.Model):
 
 
 class movieRequests(db.Model):
+    # pylint: disable=E1101
     r_id = db.Column(db.Integer, primary_key=True)
     movie = db.Column(db.String(100))
     url = db.Column(db.String(1000))
-
+    # pylint: enable=E1101
     def __init__(self, movie, url=None):
         self.movie = movie
         self.url = url
@@ -170,9 +173,11 @@ class movieRequests(db.Model):
 
 
 class deadLinks(db.Model):
+    # pylint: disable=E1101
     r_id = db.Column(db.Integer, primary_key=True)
     movieid = db.Column(db.String(100))
     name = db.Column(db.String(1000))
+    # pylint: enable=E1101
 
     def __init__(self, movie_id, name=None):
         self.movieid = movie_id
@@ -188,8 +193,10 @@ async def parse_report():
         _mid = await request.form
         mid = _mid["id"]
         col = deadLinks(mid)
+        # pylint: disable=E1101
         db.session.add(col)
         db.session.commit()
+        # pylint: enable=E1101
         return "Response recorded.Thank You for your help!"
     except Exception as e:
         print(e)
@@ -300,6 +307,7 @@ async def get_s():
     a = req_db(data)
     print(a)
     return redirect("/", 301)
+
 
 def movie_list_sort(md):
     return md.movie
