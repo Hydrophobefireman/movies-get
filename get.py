@@ -9,11 +9,11 @@ import shutil
 import threading
 import time
 import uuid
+from typing import Optional
 from urllib.parse import urlparse
 
 from bs4 import BeautifulSoup as bs
 from flask_sqlalchemy import SQLAlchemy
-
 from quart import (
     Quart,
     Response,
@@ -25,9 +25,12 @@ from quart import (
     session,
     websocket,
 )
-from typing import Optional
+
 from api import ippl_api
 from dbmanage import req_db
+from set_env import set_env_vars
+
+set_env_vars()
 
 app = Quart(__name__)
 if not os.path.isdir(".player-cache"):
@@ -51,16 +54,11 @@ def open_and_read(fn: str, mode: str = "r", strip: bool = True):
     return data
 
 
-app.secret_key = os.environ.get("db_pass_insig") or open_and_read(
-    ".dbpass-insignificant"
-)
+app.secret_key = os.environ.get("db_pass_insig")
 try:
-    dburl = os.environ.get("DATABASE_URL") or open_and_read(".dbinfo_")
+    dburl = os.environ.get("DATABASE_URL")
 except:
-    raise Exception(
-        "No DB url specified try add it to the environment or \
-        create a .dbinfo_ file with the url"
-    )
+    raise Exception("No DB url specified try add it to the environment")
 app.config["SQLALCHEMY_DATABASE_URI"] = dburl
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
@@ -110,80 +108,20 @@ class movieData(db.Model):
     alt1 = db.Column(db.String(1000))
     alt2 = db.Column(db.String(1000))
     thumb = db.Column(db.String(1000))
+    subs = db.Column(db.LargeBinary)
 
-    def __init__(self, movie, url, alt1, alt2, thumb):
+    def __init__(self, movie, url, alt1, alt2, thumb, subs=b""):
         self.mid = generate_id()
         self.movie = re.sub(r"\s", "", movie).lower()
         self.moviedisplay = movie
         self.url = str(url).replace("http://", "https://")
         self.alt1 = str(alt1).replace("http://", "https://")
         self.alt2 = str(alt2).replace("http://", "https://")
+        self.subs = subs
         self.thumb = thumb
 
     def __repr__(self):
         return "<Name %r>" % self.movie
-
-
-scripts_dir = os.path.join(app.root_path, "static", "dist")
-if not os.path.isdir(scripts_dir):
-    os.mkdir(scripts_dir)
-
-
-def resolve_local_url(url):
-    # all static assets are location in /static folder..so we dont care about urls like "./"
-    if url.startswith("/"):
-        return url
-    elif url.startswith("."):
-        url = url.lstrip(".")
-    if url.startswith("static"):
-        return "/" + url
-    else:
-        return url
-
-
-def parse_local_assets(html):
-    soup = bs(html, "html.parser")
-    assets = soup.find_all(
-        lambda x: (
-            x.name == "script"
-            and resolve_local_url(x.attrs.get("src", "")).startswith("/")
-        )
-        or (
-            x.name == "link"
-            and resolve_local_url(x.attrs.get("href", "")).startswith("/")
-            and "stylesheet" in x.attrs.get("rel", "")
-        )  # Relative urls
-    )
-    for data in assets:
-        ftype = data.name
-        attr, ext = ("src", ".js") if ftype == "script" else ("href", ".css")
-        src = resolve_local_url(data.attrs.get(attr))
-        print(f"Parsing asset->{src}")
-        if src.startswith("/"):
-            src = src[1:]
-        _file = os.path.join(app.root_path, src)
-        checksum = checksum_f(_file)
-        name = checksum + ext
-        location = os.path.join("static", "dist", name)
-        if os.path.isfile(os.path.join(app.root_path, location)):
-            print("No change in file..skipping")
-        else:
-            shutil.copyfile(_file, os.path.join(app.root_path, location))
-        data.attrs[attr] = f"/{location}"
-    return str(soup)
-
-
-def checksum_f(filename, meth="sha256"):
-    foo = getattr(hashlib, meth)()
-    _bytes = 0
-    total = os.path.getsize(filename)
-    with open(filename, "rb") as f:
-        while _bytes <= total:
-            f.seek(_bytes)
-            chunk = f.read(1024 * 4)
-            foo.update(chunk)
-            _bytes += 1024 * 4
-    return foo.hexdigest()
 
 
 def generate_id(n=None) -> str:
@@ -273,14 +211,16 @@ async def _start_frontend():
 
 @app.errorhandler(404)
 async def err(err):
-    return await render_template("index.html"), 200
+    if is_heroku(request.url):
+        return redirect("https://movies.pycode.tk")
+    return "404"
 
 
 @app.route("/")
 async def index():
     if "localhost" not in request.headers.get("origin", ""):
         return redirect("https://movies.pycode.tk")
-    return await render_template("index.html")
+    return "ok"
 
 
 @app.route("/i/rec/")
@@ -360,12 +300,6 @@ async def get_s():
     a = req_db(data)
     print(a)
     return redirect("/", 301)
-
-
-@app.route("/googlef06ee521abc7bdf8.html")
-async def google_():
-    return "google-site-verification: googlef06ee521abc7bdf8.html"
-
 
 def movie_list_sort(md):
     return md.movie
@@ -533,22 +467,6 @@ async def plugin():
     return res
 
 
-@app.route("/sec/add/", methods=["POST"])
-async def add_():
-    try:
-        _data = await request.form
-        data = _data["data"]
-        if _data["pw"] != os.environ.get("_pass_"):
-            return "No"
-        data = json.loads(data)
-        col = movieData(*data["lists"])
-        db.session.add(col)
-        db.session.commit()
-        return str(col)
-    except:
-        return "Malformed Input"
-
-
 @app.route("/media/add-shows/fetch/")
 async def search_shows():
     show = request.args.get("s")
@@ -578,64 +496,13 @@ async def _frontend_redir():
     return Response(json.dumps({"site": site, "url": url}))
 
 
-"""@app.route("/admin/", methods=["POST", "GET"])
-async def randomstuff():
-    pw = app.secret_key
-    if request.method == "GET":
-        return parse_local_assets(await render_template("admin.html"))
-    else:
-        if not is_heroku(request.url):
-            print("Local")
-            session["admin-auth"] = True
-            resp = 1
-        else:
-            if session.get("admin-auth"):
-                return Response(json.dumps({"response": -1}))
-            form = await request.form
-            _pass = form["pass"]
-            print(_pass, pw)
-            session["admin-auth"] = _pass == pw
-            if not session["admin-auth"]:
-                resp = "0"
-            else:
-                resp = "1"
-    return Response(json.dumps({"response": resp}), content_type="application/json")
-
-"""
-
-
-@app.route("/admin/get-data/", methods=["POST"])
-async def see_data():
-    if not session.get("admin-auth"):
-        return Response(json.dumps({}))
-    _ = ("search", "moviewatch", "recommend", "movieclick")
-    form = await request.form
-    _type_ = form["type"].lower()
-    _filter = [s.actions for s in DataLytics.query.filter_by(_type=_type_).all()]
-    data = {"result": _filter}
-    return Response(json.dumps(data), content_type="application/json")
-
-
 @app.route("/collect/", methods=["POST", "GET"])
 async def collect():
-    if request.method == "POST":
-        _data = await request.data
-        data = json.loads(_data.decode())
-    else:
-        data = dict(request.args)
-    if not is_heroku(request.url):
-        print("Local Env")
-        print(data)
-        return ""
-    col = DataLytics(data["type"].lower(), data["main"])
-    db.session.add(col)
-    db.session.commit()
     return ""
 
 
 @app.route("/beacon-test", methods=["POST"])
 async def bcontest():
-    await request.data
     return ""
 
 
@@ -653,4 +520,3 @@ def open_to_nginx():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", use_reloader=True)
-
