@@ -1,4 +1,5 @@
 import cloudinary.uploader
+
 import os
 
 
@@ -14,7 +15,7 @@ def upload(imgurl):
         except:
             raise Exception("no key provided")
     cloudinary.config(cloud_name="proxypy", api_key=clapi_key, api_secret=clapi_secret)
-    a = cloudinary.uploader.upload(imgurl)
+    a = cloudinary.uploader.upload(imgurl, transformation={"size": "150x200"})
     return a
 
 
