@@ -38,6 +38,7 @@ def get_(url, v=True):
         raise Exception("Could Not Find Ipplayer Configs")
     tags = div.findChildren(attrs={"data-film": True})
     data = []
+    subtitle = None
     for t in tags:
         to_screen(["[debug]Working with the configs of", t.string], v)
         to_send = t.attrs
@@ -57,6 +58,7 @@ def get_(url, v=True):
         )
         b = json.loads(a.text)
         sleep(1)
+        subtitle = b.get("c")
         to_screen(["[debug]Recieved:", b], v)
         ret = sess.post(
             host + "ip.file/swf/ipplayer/ipplayer.php",
@@ -91,8 +93,23 @@ def get_(url, v=True):
         nones = [None] * (3 - len(data))
         data += nones
     data_dict = {"title": title, "thumbnail": image, "urls": data}
-    db_m_tuple = (data_dict["title"], *data_dict["urls"], data_dict["thumbnail"])
-    yn = input("[info]Add to Databse:\n\n%s ?(y/n)" % (str(db_m_tuple))).lower()
+    print(f"subtitle:{subtitle}")
+    db_m_tuple = (
+        data_dict["title"],
+        *data_dict["urls"],
+        data_dict["thumbnail"],
+        sess.get(
+            f"https://{parsed_url.netloc}{subtitle}",
+            headers=basic_headers,
+            cookies=page.cookies,
+        ).text.encode()
+        if subtitle
+        else b"",
+    )
+    yn = input(
+        "[info]Add to Databse:\n\n%s ?(y/n)"
+        % (str([data_dict["title"], data_dict["urls"]]))
+    ).lower()
     if yn == "y":
         print("[info]Adding to database:")
         print(dbmanage.add_to_db(db_m_tuple))

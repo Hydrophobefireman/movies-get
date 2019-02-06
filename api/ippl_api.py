@@ -52,9 +52,14 @@ def main_(term=None, s_url=None):
             ret_data["shows"].append({"title": tag.attrs.get("title"), "url": u})
     return json.dumps(ret_data)
 
+
 def val_url(url):
-	u=urlp_(url)
-	return re.search(r"openload|streamango|estream|vidzi|megadrive|yourupload",u.netloc)
+    u = urlp_(url)
+    return re.search(
+        r"openload|streamango|estream|vidzi|megadrive|yourupload", u.netloc
+    )
+
+
 def get_(url, v=True):
     url = base64.b64decode(codecs.encode(url[::-1], "rot13").encode()).decode()
     ua = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
@@ -84,6 +89,7 @@ def get_(url, v=True):
         raise Exception("Could Not Find Ipplayer Configs")
     tags = div.findChildren(attrs={"data-film": True})
     data = []
+    subtitles = None
     for t in tags:
         to_screen(["[debug]Working with the configs of", t.string], v)
         to_send = t.attrs
@@ -104,6 +110,7 @@ def get_(url, v=True):
         b = json.loads(a.text)
         sleep(1)
         to_screen(["[debug]Recieved:", b], v)
+        subtitle = b.get("c")
         ret = sess.post(
             host + "ip.file/swf/ipplayer/ipplayer.php",
             cookies=page.cookies,
@@ -127,41 +134,40 @@ def get_(url, v=True):
     thumbnail = soup.find("input", attrs={"name": "phimimg"}).attrs["value"]
     to_screen(["[debug]Found", thumbnail], v)
     to_screen(["[debug]Fetching Thumbnail and uploading to cdn"], v)
-    data=[i for i in filter(val_url,data)]
+    data = [i for i in filter(val_url, data)]
     while len(data) > 3:
         p_print(data)
-        dt_n = input("[info]Enter the number of the url to remove from the List:")
-        data.pop(int(dt_n) - 1)
+        input("[info]Enter the number of the url to remove from the List:")
     if len(data) < 3:
         nones = [None] * (3 - len(data))
         data += nones
     image = upload.upload(thumbnail).get("secure_url")
     to_screen(["[debug]Secure URL of Image:", image], v)
     data_dict = {"title": title, "thumbnail": image, "urls": data}
-    db_m_tuple = (data_dict["title"], *data_dict["urls"], data_dict["thumbnail"])
+    db_m_tuple = (
+        data_dict["title"],
+        *data_dict["urls"],
+        data_dict["thumbnail"],
+        sess.get(
+            f"https://{parsed_url.netloc}{subtitle}",
+            headers=basic_headers,
+            cookies=page.cookies,
+        ).text.encode()
+        if subtitle
+        else b"",
+    )
     print(dbmanage.add_to_db(db_m_tuple))
     return json.dumps(data_dict)
 
 
 def p_print(el):
-    for r in el:
-        print("%d. %s" % (el.index(r) + 1, r))
+    return
 
 
 def to_screen(data, v):
-    assert isinstance(data, list)
-    if v:
-        print(*data)
-    else:
-        return
+    return
 
 
 if __name__ == "__main__":
-    url = input("Enter URL:")
-    verb = input("Enter Verbosity Level(v/s)[v-verbose;s-silent]").lower()
-    if verb == "v":
-        verb = True
-    else:
-        verb = False
-        print("[info]Verbosity set to silent")
-    get_(url, verb)
+    pass
+
