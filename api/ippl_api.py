@@ -1,10 +1,7 @@
 import base64
 import codecs
 import json
-import random
 import re
-
-# import re
 from time import sleep
 from urllib.parse import quote_plus as quote
 from urllib.parse import urlencode
@@ -13,8 +10,11 @@ from urllib.parse import urlparse as urlp_
 import requests
 from bs4 import BeautifulSoup as bs
 
-import dbmanage
-import upload
+try:
+    import dbmanage
+    import upload
+except ImportError:
+    pass
 
 
 def q(*args):
@@ -170,4 +170,3 @@ def to_screen(data, v):
 
 if __name__ == "__main__":
     pass
-

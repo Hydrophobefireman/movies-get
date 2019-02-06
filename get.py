@@ -22,10 +22,7 @@ from quart import (
     websocket,
 )
 
-try:
-    from api import ippl_api
-except ImportError:
-    pass
+import api.ippl_api
 from dbmanage import req_db
 from set_env import set_env_vars
 
