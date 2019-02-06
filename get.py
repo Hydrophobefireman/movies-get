@@ -22,7 +22,7 @@ from quart import (
     websocket,
 )
 
-import api.ippl_api
+import api.ippl_api as ippl_api
 from dbmanage import req_db
 from set_env import set_env_vars
 
@@ -225,6 +225,19 @@ async def index():
     if "localhost" not in request.headers.get("origin", ""):
         return redirect("https://movies.pycode.tk")
     return "ok"
+
+
+@app.route("/api/get-subtitles/")
+async def subtitles_serve():
+    mid = request.args.get("s")
+    a = movieData.query.filter_by(mid=mid).first()
+    if not a:
+        return ""
+    return Response(
+        a.subs,
+        content_type="application/x-subrip",
+        headers={"content-disposition": f'attachment; filename="{a.moviedisplay}.srt"'},
+    )
 
 
 @app.route("/i/rec/")
