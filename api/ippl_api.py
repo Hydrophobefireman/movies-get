@@ -60,7 +60,7 @@ def val_url(url):
     )
 
 
-def get_(url, v=True):
+def get_(url, v=True, dbinst=None, movieDatInst=None):
     url = base64.b64decode(codecs.encode(url[::-1], "rot13").encode()).decode()
     ua = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
     print("[debug]Fetching:\n", url)
@@ -110,7 +110,7 @@ def get_(url, v=True):
         b = json.loads(a.text)
         sleep(1)
         to_screen(["[debug]Recieved:", b], v)
-        subtitle = b.get("c")
+        subtitles = b.get("c")
         ret = sess.post(
             host + "ip.file/swf/ipplayer/ipplayer.php",
             cookies=page.cookies,
@@ -149,23 +149,25 @@ def get_(url, v=True):
         *data_dict["urls"],
         data_dict["thumbnail"],
         sess.get(
-            f"https://{parsed_url.netloc}{subtitle}",
+            f"https://{parsed_url.netloc}{subtitles}",
             headers=basic_headers,
             cookies=page.cookies,
         ).text.encode()
-        if subtitle
+        if subtitles
         else b"",
     )
-    print(dbmanage.add_to_db(db_m_tuple))
+    print("create data tuple")
+    print(dbmanage.add_to_db(db_m_tuple, dbinst, movieDatInst))
     return json.dumps(data_dict)
 
 
 def p_print(el):
+    print(el)
     return
 
 
 def to_screen(data, v):
-    return
+    print(data)
 
 
 if __name__ == "__main__":

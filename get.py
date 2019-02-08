@@ -491,9 +491,11 @@ async def frontend_add_show_lookup():
     urls = movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
     if len(urls) > 0:
         return "We already have a movie with similar name..to prevent multiple copies of the same movie..please request this show to be manually added"
-    thread = threading.Thread(target=ippl_api.get_, args=(_show_url, title))
+    thread = threading.Thread(
+        target=ippl_api.get_, args=(_show_url, title, db, movieData)
+    )
     thread.start()
-    return "OK"
+    return f"Adding {title}"
 
 
 @app.route("/api/out/")
