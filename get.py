@@ -253,7 +253,7 @@ async def resp_headers(resp):
     if "localhost" in request.headers.get("origin", ""):
         resp.headers["access-control-allow-origin"] = request.headers["origin"]
     else:
-        resp.headers["access-control-allow-origin"] = "https://tv.pycode.tk"
+        resp.headers["access-control-allow-origin"] = "https://movies.pycode.tk"
     resp.headers["Access-Control-Allow-Headers"] = request.headers.get(
         "Access-Control-Request-Headers", "*"
     )
