@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup as bs
 
 import dbmanage
 import upload
+from get import db, movieData
 
 
 def get_(url, v=True):
@@ -112,7 +113,7 @@ def get_(url, v=True):
     ).lower()
     if yn == "y":
         print("[info]Adding to database:")
-        print(dbmanage.add_to_db(db_m_tuple))
+        print(dbmanage.add_to_db(db_m_tuple, db, movieData))
     else:
         print("[info]Returning Values Only")
     return json.dumps(data_dict)
