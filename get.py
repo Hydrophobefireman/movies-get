@@ -27,6 +27,7 @@ from dbmanage import req_db
 from set_env import set_env_vars
 
 set_env_vars()
+json_ctype = "application/json"
 
 app = Quart(__name__)
 if not os.path.isdir(".player-cache"):
@@ -62,7 +63,7 @@ USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 \
             (KHTML, like Gecko) Chrome/66.0.3343.3 Safari/537.36"
 
 
-def get_all_results(req_if_not_heroku=False, number=0, shuffle=True, url=None):
+def get_all_results(req_if_not_heroku=True, number=0, shuffle=True, url=None):
     db_cache_file = os.path.join(app.root_path, ".db-cache--all")
     jsdata = __data__ = []
     data = None
@@ -244,7 +245,7 @@ async def subtitles_serve():
 async def recommend():
     data = get_all_results(False, number=5, shuffle=False, url=request.url)
     rec = json.dumps({"recommendations": data})
-    return Response(rec, content_type="application/json")
+    return Response(rec, content_type=json_ctype)
 
 
 @app.after_request
@@ -252,7 +253,10 @@ async def resp_headers(resp):
     if "localhost" in request.headers.get("origin", ""):
         resp.headers["access-control-allow-origin"] = request.headers["origin"]
     else:
-        resp.headers["access-control-allow-origin"] = "https://movies.pycode.tk"
+        resp.headers["access-control-allow-origin"] = "https://tv.pycode.tk"
+    resp.headers["Access-Control-Allow-Headers"] = request.headers.get(
+        "Access-Control-Request-Headers", "*"
+    )
     resp.headers["access-control-allow-credentials"] = "true"
     return resp
 
@@ -266,25 +270,26 @@ async def send_fav():
 
 @app.websocket("/suggestqueries")
 async def socket_conn():
+    sort_dict = lambda x: x.get("movie")
     while 1:
-        query = await websocket.receive()
-        if query == "ping":
-            await websocket.send("pong")
+        _query: str = await websocket.receive()
+        query = re.escape(re.sub(r"([^\w]|_)", "", _query).lower())
+        if not query:
+            await websocket.send(json.dumps({"no-res": True}))
+            continue
+        json_data = {"data": []}
+        req_if_heroku: bool = False
+        if is_heroku(websocket.url):
+            req_if_heroku = True
+        names: list = get_all_results(
+            req_if_not_heroku=req_if_heroku, url=websocket.url
+        )
+        json_data["data"] = [s for s in names if re.search(query, s["moviename"])]
+        if not len(json_data["data"]):
+            await websocket.send(json.dumps({"no-res": True}))
         else:
-            json_data = {"data": []}
-            names = get_all_results(req_if_not_heroku=False, url=websocket.url)
-            json_data["data"] = [
-                s
-                for s in names
-                if re.search(
-                    (re.sub(r"[^\w]", "", query)), s["moviename"], re.IGNORECASE
-                )
-            ]
-            if len(json_data["data"]) == 0:
-                await websocket.send(json.dumps({"no-res": True}))
-            else:
-                json_data["data"].sort(key=sort_dict)
-                await websocket.send(json.dumps({**json_data, "cached": "undefined"}))
+            json_data["data"].sort(key=sort_dict)
+            await websocket.send(json.dumps(json_data))
 
 
 def sort_dict(el, key="movie"):
@@ -323,7 +328,7 @@ def movie_list_sort(md):
     return md.movie
 
 
-@app.route("/data/search/", methods=["POST"])
+@app.route("/api/data/search/", methods=["POST"])
 async def serchs():
     json_data = {}
     json_data["movies"] = []
@@ -338,66 +343,31 @@ async def serchs():
         )
     if len(json_data["movies"]) == 0:
         return json.dumps({"no-res": True})
-    return Response(json.dumps(json_data), content_type="application/json")
+    return Response(json.dumps(json_data), content_type=json_ctype)
 
 
 @app.route("/api/all/")
 async def get_token():
     token = (generate_id() + generate_id())[:20]
     session["req-all"] = token
-    return Response(json.dumps({"token": token}), content_type="application/json")
+    return Response(json.dumps({"token": token}), content_type=json_ctype)
 
 
-@app.route("/fetch-token/configs/", methods=["POST"])
-async def gen_conf():
-    _data = await request.form
-    data = _data["data"]
-    rns = _data["rns"]
-    if data != session.get("req-all"):
-        return "lol"
-    session.pop("req-all")
-    session["fetch-token"] = (generate_id() + rns + generate_id())[:20]
-    return Response(
-        json.dumps({"id": session["fetch-token"], "rns": rns}),
-        content_type="application/json",
-    )
-
-
-@app.route("/data/specs/", methods=["POST"])
-async def get_all():
-    json_data = {}
-    _forms = await request.form
-    forms = _forms["q"]
-    json_data["movies"] = []
-    if session.get("data-specs") != forms:
-        return "!cool"
-    session.pop("data-specs")
+@app.route("/api/get-all/", methods=["POST"])
+async def get_all_results_api():
+    jsdata = await request.get_json()
+    if jsdata.get("token") != session.get("nonce"):
+        return Response(json.dumps({"error": "no"}), content_type=json_ctype)
     movs = get_all_results(shuffle=True, url=request.url)
-    json_data["movies"] = movs
-    res = await make_response(json.dumps(json_data))
-    res.headers["Content-Type"] = "application/json"
-    return res
-
-
-@app.route("/fetch-token/links/post/", methods=["POST"])
-async def s_confs():
-    _data = await request.form
-    data = _data["data"]
-    if data != session.get("fetch-token"):
-        return "No"
-    session.pop("fetch-token")
-    session["data-specs"] = generate_id(30)
-    return Response(
-        json.dumps({"id": session["data-specs"]}), content_type="application/json"
-    )
+    data = {"movies": movs}
+    return Response(json.dumps(data), content_type=json_ctype)
 
 
 @app.route("/api/movie/", methods=["POST"])
 async def _frontend_movie():
-    ct = "application/json"
+    ct = json_ctype
     data: str
-
-    form = await request.form
+    form = await request.get_json()
     idx: Optional[str] = form.get("id")
     if not idx:
         return Response(
@@ -427,6 +397,16 @@ async def _frontend_movie():
     return Response(data, content_type=ct)
 
 
+@app.route("/api/movie/has-subtitles")
+async def has_subtitles_api():
+    idx = request.args.get("s")
+    dat = movieData.query.filter_by(mid=idx).first()
+    f = False
+    if dat:
+        f = bool(dat.subs)
+    return Response(json.dumps({"data": f}), content_type=json_ctype)
+
+
 def _get_data_from_player_cache(mid: str) -> dict:
     fp = os.path.join(".player-cache", f"{mid}.json")
     f = open_and_read(fp)
@@ -443,6 +423,17 @@ def _get_data_from_player_cache(mid: str) -> dict:
         }
     except:
         return None
+
+
+@app.route("/api/get-integrity/", methods=["POST"])
+async def get_integrity_token():
+    data: dict = await request.get_json()
+    if data.get("$"):
+        if session.get("nonce") != data.get("integrity"):
+            print("Err")
+    idx: str = generate_id()
+    session["nonce"] = idx
+    return Response(json.dumps({"token": idx}))
 
 
 @app.route("/data-parser/plugins/player/", methods=["POST"])
@@ -464,7 +455,7 @@ async def plugin():
                         "alt2": data["alt2"],
                     }
                     res = await make_response(json.dumps(json_data))
-                    res.headers["Content-Type"] = "application/json"
+                    res.headers["Content-Type"] = json_ctype
                     res.headers["X-Sent-Cached"] = str(True)
                     print("Sending Cached Data")
                     return res
@@ -481,7 +472,7 @@ async def plugin():
         f.write(json_data)
     res = await make_response(json_data)
     res.headers["X-Sent-Cached"] = str(False)
-    res.headers["Content-Type"] = "application/json"
+    res.headers["Content-Type"] = json_ctype
     return res
 
 
@@ -489,7 +480,7 @@ async def plugin():
 async def search_shows():
     show = request.args.get("s")
     print(show)
-    return Response(ippl_api.main_(term=show), content_type="application/json")
+    return Response(ippl_api.main_(term=show), content_type=json_ctype)
 
 
 @app.route("/api/add/tv-show/lookup")
