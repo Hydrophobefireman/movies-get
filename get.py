@@ -501,7 +501,7 @@ async def frontend_add_show_lookup():
 @app.route("/api/out/")
 async def _frontend_redir():
     site = session.get("site-select")
-    url = request.args.get("url")
+    url = request.args.get("url", "")
     if url.startswith("//"):
         url = "https:" + url
     return Response(json.dumps({"site": site, "url": url}))
@@ -521,6 +521,21 @@ async def bcontest():
 async def set_dl():
     session["site-select"] = request.args.get("dl")
     return redirect(session["site-select"], status_code=301)
+
+
+@app.route("/_/api/experiments/subtitle-remote-upload", methods=["POST"])
+async def upload_subtitles():
+    from base64 import b64decode
+
+    data = await request.get_json()
+    subfile = b64decode(data.get("subs").encode())
+    mid = data.get("mid")
+    movie = movieData.query.filter_by(mid=mid).first()
+    if not movie:
+        return "Does not exist"
+    movie.subs = subfile
+    db.session.commit()
+    return "ok"
 
 
 # for heroku nginx
