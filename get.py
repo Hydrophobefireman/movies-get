@@ -33,6 +33,8 @@ app = Quart(__name__)
 if not os.path.isdir(".player-cache"):
     os.mkdir(".player-cache")
 
+sanitize_str = lambda movie: re.sub(r"([^\w]|_)", "", movie)
+
 
 def open_and_write(fn: str, mode: str = "w", data=None) -> None:
     with open(fn, mode) as f:
@@ -110,7 +112,7 @@ class movieData(db.Model):
     # pylint: enable=E1101
     def __init__(self, movie, url, alt1, alt2, thumb, subs=b""):
         self.mid = generate_id()
-        self.movie = re.sub(r"\s", "", movie).lower()
+        self.movie = sanitize_str(movie).lower()
         self.moviedisplay = movie
         self.url = str(url).replace("http://", "https://")
         self.alt1 = str(alt1).replace("http://", "https://")
@@ -273,7 +275,7 @@ async def socket_conn():
     sort_dict = lambda x: x.get("movie")
     while 1:
         _query: str = await websocket.receive()
-        query = re.escape(re.sub(r"([^\w]|_)", "", _query).lower())
+        query = re.escape(sanitize_str(_query).lower())
         if not query:
             await websocket.send(json.dumps({"no-res": True}))
             continue
@@ -300,7 +302,7 @@ def sort_dict(el, key="movie"):
 async def api_req_m():
     _form = await request.form
     movie = _form.get("movie")
-    if not re.sub(r"\s", "", movie):
+    if not sanitize_str(movie):
         print("No movie Given")
         return "NO"
     url = _form.get("url")
@@ -314,7 +316,7 @@ async def api_req_m():
 async def get_s():
     _form = await request.form
     movie = _form.get("movie")
-    if not re.sub(r"\s", "", movie):
+    if not sanitize_str(movie):
         print("No movie Given")
         return "Please mention the movie"
     url = _form.get("url")
@@ -333,7 +335,9 @@ async def serchs():
     json_data = {}
     json_data["movies"] = []
     _form = await request.form
-    q = re.sub(r"[^\w]", "", _form["q"]).lower()
+    q = sanitize_str(_form["q"]).lower()
+    if not q:
+        return json.dumps({"no-res": True})
     urls = movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
     urls.sort(key=movie_list_sort)
 
@@ -487,7 +491,7 @@ async def search_shows():
 async def frontend_add_show_lookup():
     _show_url = request.args.get("s")
     title = request.args.get("t", "")
-    q = re.sub(r"([^\w]|_)", "", title).lower()
+    q = sanitize_str(title).lower()
     urls = movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
     if len(urls) > 0:
         return "We already have a movie with similar name..to prevent multiple copies of the same movie..please request this show to be manually added"
@@ -525,7 +529,7 @@ async def set_dl():
 
 @app.route("/_/api/experiments/subtitle-remote-upload", methods=["POST"])
 async def upload_subtitles():
-    from base64 import b64decode
+
     data = await request.get_json()
     subfile = data.get("subs").encode()
     mid = data.get("mid")
