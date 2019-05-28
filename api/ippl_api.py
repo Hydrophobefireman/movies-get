@@ -30,7 +30,7 @@ def main_(term=None, s_url=None):
     if s_url is None:
         if term is None:
             return "No term Supplied"
-        url = "https://www5.solarmoviesc.com/search/%s.html" % (quote(term))
+        url = "https://www3.123moviess.net/search/%s.html" % (quote(term))
     else:
         url = s_url
     ua = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
@@ -61,7 +61,10 @@ def val_url(url):
 
 
 def get_(url, v=True, dbinst=None, movieDatInst=None):
-    url = base64.b64decode(codecs.encode(url[::-1], "rot13").encode()).decode()
+    url = (
+        base64.b64decode(codecs.encode(url[::-1], "rot13").encode()).decode()
+        + "?play=1"
+    )
     ua = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
     print("[debug]Fetching:\n", url)
     basic_headers = {

@@ -133,7 +133,7 @@ def to_screen(data, v):
 
 
 if __name__ == "__main__":
-    url = input("Enter URL:")
+    url = input("Enter URL:") + "?play=1"
     verb = input("Enter Verbosity Level(v/s)[v-verbose;s-silent]").lower()
     if verb == "v":
         verb = True

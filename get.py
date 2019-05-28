@@ -76,7 +76,7 @@ def get_all_results(req_if_not_heroku=True, number=0, shuffle=True, url=None):
             __data__ = data
         except Exception as e:
             print(e)
-    elif is_heroku(str(url)) or not is_heroku(str(url)) and req_if_not_heroku:
+    elif True or is_heroku(str(url)) or (not is_heroku(str(url)) and req_if_not_heroku):
         _data = movieData.query.all()
         for url in _data:
             jsdata.append(
@@ -359,9 +359,6 @@ async def get_token():
 
 @app.route("/api/get-all/", methods=["POST"])
 async def get_all_results_api():
-    jsdata = await request.get_json()
-    if jsdata.get("token") != session.get("nonce"):
-        return Response(json.dumps({"error": "no"}), content_type=json_ctype)
     movs = get_all_results(shuffle=True, url=request.url)
     data = {"movies": movs}
     return Response(json.dumps(data), content_type=json_ctype)
@@ -529,7 +526,7 @@ async def set_dl():
 
 @app.route("/_/api/experiments/subtitle-remote-upload", methods=["POST"])
 async def upload_subtitles():
-
+    
     data = await request.get_json()
     subfile = data.get("subs").encode()
     mid = data.get("mid")
