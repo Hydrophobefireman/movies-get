@@ -490,7 +490,7 @@ async def frontend_add_show_lookup():
     title = request.args.get("t", "")
     q = sanitize_str(title)
     urls = movieData.query.filter(movieData.movie.op("~")(r"(?s).*?%s" % (q))).all()
-    return "_failed_" # TODO fix
+    return "_failed_"  # TODO fix
     if len(urls) > 0:
         return "We already have a movie with similar name..to prevent multiple copies of the same movie..please request this show to be manually added"
     thread = threading.Thread(
