@@ -219,14 +219,14 @@ async def _start_frontend():
 @app.errorhandler(404)
 async def err(err):
     if is_heroku(request.url):
-        return redirect("https://movies.pycode.cf")
+        return redirect("https://movies.pycode.tk")
     return "404"
 
 
 @app.route("/")
 async def index():
     if "localhost" not in request.headers.get("origin", ""):
-        return redirect("https://movies.pycode.cf")
+        return redirect("https://movies.pycode.tk")
     return "ok"
 
 
@@ -255,7 +255,7 @@ async def resp_headers(resp):
     if "localhost" in request.headers.get("origin", ""):
         resp.headers["access-control-allow-origin"] = request.headers["origin"]
     else:
-        resp.headers["access-control-allow-origin"] = "https://movies.pycode.cf"
+        resp.headers["access-control-allow-origin"] = "https://movies.pycode.tk"
     resp.headers["Access-Control-Allow-Headers"] = request.headers.get(
         "Access-Control-Request-Headers", "*"
     )
