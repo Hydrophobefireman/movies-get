@@ -9,7 +9,7 @@ from bs4 import BeautifulSoup as bs
 import dbmanage
 import upload
 from get import db, movieData
-   #
+   
 
 def get_(url, v=True):
     ua = "Mozilla/5.0 (Windows; U; Windows NT 10.0; en-US) AppleWebKit/604.1.38 (KHTML, like Gecko) Chrome/68.0.3325.162"
