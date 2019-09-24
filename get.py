@@ -18,7 +18,6 @@ from quart import (
     render_template,
     request,
     send_from_directory,
-    session,
     websocket,
 )
 
@@ -350,13 +349,6 @@ async def serchs():
     return Response(json.dumps(json_data), content_type=json_ctype)
 
 
-@app.route("/api/all/")
-async def get_token():
-    token = (generate_id() + generate_id())[:20]
-    session["req-all"] = token
-    return Response(json.dumps({"token": token}), content_type=json_ctype)
-
-
 @app.route("/api/get-all/", methods=["POST"])
 async def get_all_results_api():
     movs = get_all_results(shuffle=True, url=request.url)
@@ -426,57 +418,6 @@ def _get_data_from_player_cache(mid: str) -> dict:
         return None
 
 
-@app.route("/api/get-integrity/", methods=["POST"])
-async def get_integrity_token():
-    data: dict = await request.get_json()
-    if data.get("$"):
-        if session.get("nonce") != data.get("integrity"):
-            print("Err")
-    idx: str = generate_id()
-    session["nonce"] = idx
-    return Response(json.dumps({"token": idx}))
-
-
-@app.route("/data-parser/plugins/player/", methods=["POST"])
-async def plugin():
-    _mid = await request.form
-    mid = _mid["id"]
-    if _mid["nonce"] != session["req_nonce"]:
-        return "Lol"
-    nonce = generate_id()
-    session["req_nonce"] = nonce
-    if os.path.isdir(".player-cache"):
-        if os.path.isfile(os.path.join(".player-cache", mid + ".json")):
-            with open(os.path.join(".player-cache", mid + ".json"), "r") as f:
-                try:
-                    data = json.loads(f.read())
-                    json_data = {
-                        "url": data["url"],
-                        "alt1": data["alt1"],
-                        "alt2": data["alt2"],
-                    }
-                    res = await make_response(json.dumps(json_data))
-                    res.headers["Content-Type"] = json_ctype
-                    res.headers["X-Sent-Cached"] = str(True)
-                    print("Sending Cached Data")
-                    return res
-                except:
-                    pass
-    else:
-        os.mkdir(".player-cache")
-    data = movieData.query.filter_by(mid=mid).first()
-    common_ = {"url": data.url, "alt1": data.alt1, "alt2": data.alt2}
-    json_data = json.dumps(
-        {**common_, "movie_name": data.movie_display, "thumbnail": data.thumb}
-    )
-    with open(os.path.join(".player-cache", mid + ".json"), "w") as f:
-        f.write(json_data)
-    res = await make_response(json_data)
-    res.headers["X-Sent-Cached"] = str(False)
-    res.headers["Content-Type"] = json_ctype
-    return res
-
-
 @app.route("/media/add-shows/fetch/")
 async def search_shows():
     show = request.args.get("s")
@@ -500,15 +441,6 @@ async def frontend_add_show_lookup():
     return f"Adding {title}"
 
 
-@app.route("/api/out/")
-async def _frontend_redir():
-    site = session.get("site-select")
-    url = request.args.get("url", "")
-    if url.startswith("//"):
-        url = "https:" + url
-    return Response(json.dumps({"site": site, "url": url}))
-
-
 @app.route("/collect/", methods=["POST", "GET"])
 async def collect():
     return ""
@@ -517,12 +449,6 @@ async def collect():
 @app.route("/beacon-test", methods=["POST"])
 async def bcontest():
     return ""
-
-
-@app.route("/set-downloader/")
-async def set_dl():
-    session["site-select"] = request.args.get("dl")
-    return redirect(session["site-select"], status_code=301)
 
 
 @app.route("/_/api/experiments/subtitle-remote-upload", methods=["POST"])
