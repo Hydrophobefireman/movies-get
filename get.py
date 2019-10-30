@@ -8,7 +8,7 @@ import threading
 import time
 from typing import Optional
 from urllib.parse import urlparse
-
+from upload import upload
 from flask_sqlalchemy import SQLAlchemy
 from quart import (
     Quart,
@@ -22,7 +22,7 @@ from quart import (
 )
 
 import api.ippl_api as ippl_api
-from dbmanage import req_db
+from dbmanage import req_db, add_to_db
 from set_env import set_env_vars
 
 set_env_vars()
@@ -462,6 +462,46 @@ async def upload_subtitles():
     movie.subs = subfile
     db.session.commit()
     return "ok"
+
+
+@app.route("/api/add-movie/custom/", methods=["POST"])
+async def add_movie_to_db():
+    data = await request.get_json()
+    mgf = os.environ.get("mgf")
+    if data.get("token") != mgf:
+        return Response(json.dumps({"error": "bad token"}), content_type=json_ctype)
+    tp = data.get("type")
+    if tp == "add":
+        name = data.get("movie")
+        thumb = data.get("thumb")
+        url, alt1, alt2 = data.get("movie-urls")
+        subs = b""
+        if not all([name, thumb, url]):
+            return Response(json.dumps({"error": "Invalid Values"}))
+        thumb = upload(thumb)["secure_url"]
+        data_tuple = (name, url, alt1, alt2, thumb, subs)
+        add_to_db(data_tuple, db, movieData)
+        return Response(json.dumps({"success": "ok"}), content_type=json_ctype)
+    if tp == "edit":
+        mid = data.get("mid")
+        url, alt1, alt2 = data.get("movie-urls")
+        movie = movieData.query.filter_by(mid=mid).first()
+        if not movie:
+            return Response(
+                json.dumps({"error": "not exists"}), content_type=json_ctype
+            )
+        if not any([url, alt1, alt2]):
+            return Response(
+                json.dumps({"error": "invalid URLS"}), content_type=json_ctype
+            )
+        if url:
+            movie.url = url
+        if alt1:
+            movie.alt1 = alt1
+        if alt2:
+            movie.alt2 = alt2
+        db.session.commit()
+        return Response(json.dumps({"success": "ok"}), content_type=json_ctype)
 
 
 # for heroku nginx
