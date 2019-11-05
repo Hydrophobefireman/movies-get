@@ -55,9 +55,7 @@ def main_(term=None, s_url=None):
 
 def val_url(url):
     u = urlp_(url)
-    return re.search(
-        r"openload|streamango|estream|vidzi|megadrive|yourupload", u.netloc
-    )
+    return re.search(r"tunstream|megadrive|yourupload", u.netloc)
 
 
 def get_(url, v=True, dbinst=None, movieDatInst=None):
@@ -114,6 +112,8 @@ def get_(url, v=True, dbinst=None, movieDatInst=None):
         sleep(1)
         to_screen(["[debug]Recieved:", b], v)
         subtitles = b.get("c")
+        if isinstance(subtitles, list) and len(subtitles):
+            subtitles = subtitles[0].get("file")
         ret = sess.post(
             host + "ip.file/swf/ipplayer/ipplayer.php",
             cookies=page.cookies,
