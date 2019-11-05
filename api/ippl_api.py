@@ -55,7 +55,7 @@ def main_(term=None, s_url=None):
 
 def val_url(url):
     u = urlp_(url)
-    return re.search(r"tunstream|megadrive|yourupload", u.netloc)
+    return re.search(r"tunestream|megadrive|yourupload", u.netloc)
 
 
 def get_(url, v=True, dbinst=None, movieDatInst=None):
